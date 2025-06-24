@@ -16,7 +16,7 @@ import { relations } from "drizzle-orm";
 
 // Users table with custom auth support
 export const users = pgTable("users", {
-  id: uuid("id").primaryKey().defaultRandom(),
+  id: uuid("id").primaryKey().default(sql`gen_random_uuid()`),
   email: varchar("email").unique().notNull(),
   password: varchar("password"), // For email/password auth
   firstName: varchar("first_name"),
@@ -296,6 +296,9 @@ export const userProgressRelations = relations(userProgress, ({ one }) => ({
     references: [classes.id],
   }),
 }));
+
+// Import sql for UUID generation
+import { sql } from "drizzle-orm";
 
 // Insert schemas
 export const insertUserSchema = createInsertSchema(users).omit({
