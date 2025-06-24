@@ -1,41 +1,26 @@
-{
-  "version": 2,
-  "name": "iqra-learning",
-  "builds": [
-    {
-      "src": "dist/server/index.js",
-      "use": "@vercel/node",
-      "config": {
-        "includeFiles": ["uploads/**"]
-      }
-    }
-  ],
-  "routes": [
-    {
-      "src": "/api/(.*)",
-      "dest": "/dist/server/index.js"
+import { defineConfig } from "vite";
+import react from "@vitejs/plugin-react";
+import path from "path";
+
+export default defineConfig({
+  plugins: [react()],
+  resolve: {
+    alias: {
+      "@": path.resolve(__dirname, "./client/src"),
+      "@shared": path.resolve(__dirname, "./shared"),
     },
-    {
-      "src": "/uploads/(.*)",
-      "dest": "/uploads/$1"
+  },
+  build: {
+    outDir: "dist/client",
+    emptyOutDir: true,
+  },
+  server: {
+    port: 5173,
+    proxy: {
+      "/api": {
+        target: "http://localhost:5000",
+        changeOrigin: true,
+      },
     },
-    {
-      "src": "/(.*)",
-      "dest": "/dist/client/index.html"
-    }
-  ],
-  "functions": {
-    "dist/server/index.js": {
-      "maxDuration": 30
-    }
   },
-  "env": {
-    "NODE_ENV": "production"
-  },
-  "outputDirectory": "dist/client",
-  "buildCommand": "npm run build",
-  "devCommand": "npm run dev",
-  "installCommand": "npm install",
-  "framework": null,
-  "regions": ["iad1"]
-}
+});

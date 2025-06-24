@@ -50,20 +50,27 @@ const upload = multer({
 export async function registerRoutes(app: Express): Promise<Server> {
   // Middleware
   app.use(cors({
-    origin: process.env.FRONTEND_URL || ['http://localhost:3000', 'http://localhost:5173'],
+    origin: process.env.FRONTEND_URL || process.env.NODE_ENV === 'development' 
+      ? ['http://localhost:3000', 'http://localhost:5173'] 
+      : true,
     credentials: true,
   }));
   app.use(cookieParser());
 
   // Health check
   app.get('/api/health', (req, res) => {
-    res.json({ status: 'ok', timestamp: new Date().toISOString() });
+    res.json({ 
+      status: 'ok', 
+      timestamp: new Date().toISOString(),
+      app: 'Iqra Islamic Learning Platform',
+      version: '1.0.0'
+    });
   });
 
   // Auth routes
   app.post('/api/auth/register', authRoutes.register);
   app.post('/api/auth/login', authRoutes.login);
-  app.get('/api/auth/me', authenticate, authRoutes.me);
+  app.get('/api/auth/user', authenticate, authRoutes.me);
   app.post('/api/auth/logout', authRoutes.logout);
   app.post('/api/auth/refresh', authenticate, authRoutes.refresh);
 
@@ -77,7 +84,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
       if (!user) {
         return res.status(404).json({ message: "User not found" });
       }
-      res.json(user);
+      
+      // Remove sensitive data
+      const { password, ...userProfile } = user;
+      res.json(userProfile);
     } catch (error) {
       console.error("Error fetching user profile:", error);
       res.status(500).json({ message: "Failed to fetch user profile" });
@@ -95,7 +105,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
         country,
         language,
       });
-      res.json(updatedUser);
+      
+      // Remove sensitive data
+      const { password, ...userProfile } = updatedUser;
+      res.json(userProfile);
     } catch (error) {
       console.error("Error updating user profile:", error);
       res.status(500).json({ message: "Failed to update user profile" });
@@ -154,6 +167,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.json(newClass);
     } catch (error) {
       console.error("Error creating class:", error);
+      if (error.name === 'ZodError') {
+        return res.status(400).json({ message: "Invalid class data", errors: error.errors });
+      }
       res.status(500).json({ message: "Failed to create class" });
     }
   });
@@ -162,6 +178,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       const userId = req.user.id;
       const classId = parseInt(req.params.id);
+      
+      if (isNaN(classId)) {
+        return res.status(400).json({ message: "Invalid class ID" });
+      }
       
       const existingClass = await storage.getClassById(classId);
       if (!existingClass) {
@@ -185,10 +205,21 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       const userId = req.user.id;
       const classId = parseInt(req.params.id);
+      
+      if (isNaN(classId)) {
+        return res.status(400).json({ message: "Invalid class ID" });
+      }
+      
       const user = await storage.getUser(userId);
       
       if (!user || user.role !== 'student') {
         return res.status(403).json({ message: "Only students can enroll in classes" });
+      }
+
+      // Check if class exists
+      const classExists = await storage.getClassById(classId);
+      if (!classExists) {
+        return res.status(404).json({ message: "Class not found" });
       }
 
       const enrollmentData = insertEnrollmentSchema.parse({
@@ -200,6 +231,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.json(enrollment);
     } catch (error) {
       console.error("Error enrolling in class:", error);
+      if (error.message?.includes('duplicate') || error.code === '23505') {
+        return res.status(409).json({ message: "Already enrolled in this class" });
+      }
       res.status(500).json({ message: "Failed to enroll in class" });
     }
   });
@@ -208,6 +242,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       const userId = req.user.id;
       const classId = parseInt(req.params.id);
+      
+      if (isNaN(classId)) {
+        return res.status(400).json({ message: "Invalid class ID" });
+      }
       
       await storage.unenrollStudent(classId, userId);
       res.json({ message: "Successfully unenrolled from class" });
@@ -251,6 +289,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.get('/api/files/:id/download', authenticate, async (req: any, res) => {
     try {
       const fileId = parseInt(req.params.id);
+      
+      if (isNaN(fileId)) {
+        return res.status(400).json({ message: "Invalid file ID" });
+      }
+      
       const file = await storage.getFileById(fileId);
       
       if (!file) {
@@ -279,7 +322,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
       
       let files;
       if (classId) {
-        files = await storage.getFilesByClass(parseInt(classId as string));
+        const classIdNum = parseInt(classId as string);
+        if (isNaN(classIdNum)) {
+          return res.status(400).json({ message: "Invalid class ID" });
+        }
+        files = await storage.getFilesByClass(classIdNum);
       } else {
         files = await storage.getFilesByUploader(userId);
       }
@@ -297,15 +344,19 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const userId = req.user.id;
       const { message } = req.body;
       
-      if (!message) {
+      if (!message || typeof message !== 'string' || message.trim().length === 0) {
         return res.status(400).json({ message: "Message is required" });
       }
 
-      const aiResponse = await askIslamicQuestion(message);
+      if (message.length > 1000) {
+        return res.status(400).json({ message: "Message too long (max 1000 characters)" });
+      }
+
+      const aiResponse = await askIslamicQuestion(message.trim());
       
       const chatData = insertChatMessageSchema.parse({
         userId,
-        message,
+        message: message.trim(),
         response: aiResponse.answer,
       });
 
@@ -324,7 +375,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.get('/api/chat/history', authenticate, async (req: any, res) => {
     try {
       const userId = req.user.id;
-      const limit = req.query.limit ? parseInt(req.query.limit as string) : 50;
+      const limit = req.query.limit ? Math.min(parseInt(req.query.limit as string), 100) : 50;
       
       const history = await storage.getChatHistory(userId, limit);
       res.json(history);
@@ -340,29 +391,41 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const { language = 'en' } = req.query;
       const today = new Date();
       
-      let content = await storage.getDailyContent(today, language as string);
+      // Validate language parameter
+      const validLanguages = ['en', 'ar', 'ur', 'bn'];
+      const lang = validLanguages.includes(language as string) ? language as string : 'en';
+      
+      let content = await storage.getDailyContent(today, lang);
       
       // If no content for today, generate it
       if (content.length === 0) {
-        const verseContent = await generateDailyContent('verse', language as string);
-        const hadithContent = await generateDailyContent('hadith', language as string);
-        
-        await Promise.all([
-          storage.createDailyContent({
-            type: 'verse',
-            content: verseContent.content,
-            source: verseContent.source,
-            language: language as string,
-          }),
-          storage.createDailyContent({
-            type: 'hadith',
-            content: hadithContent.content,
-            source: hadithContent.source,
-            language: language as string,
-          }),
-        ]);
-        
-        content = await storage.getDailyContent(today, language as string);
+        try {
+          const [verseContent, hadithContent] = await Promise.all([
+            generateDailyContent('verse', lang),
+            generateDailyContent('hadith', lang)
+          ]);
+          
+          await Promise.all([
+            storage.createDailyContent({
+              type: 'verse',
+              content: verseContent.content,
+              source: verseContent.source,
+              language: lang,
+            }),
+            storage.createDailyContent({
+              type: 'hadith',
+              content: hadithContent.content,
+              source: hadithContent.source,
+              language: lang,
+            }),
+          ]);
+          
+          content = await storage.getDailyContent(today, lang);
+        } catch (genError) {
+          console.error("Error generating daily content:", genError);
+          // Return fallback content
+          content = [];
+        }
       }
       
       res.json(content);
@@ -385,25 +448,31 @@ export async function registerRoutes(app: Express): Promise<Server> {
       let stats = {};
       
       if (user.role === 'teacher') {
-        const classes = await storage.getClassesByTeacher(userId);
-        const totalStudents = 0; // Calculate from enrollments
-        const files = await storage.getFilesByUploader(userId);
+        const [classes, files] = await Promise.all([
+          storage.getClassesByTeacher(userId),
+          storage.getFilesByUploader(userId)
+        ]);
+        
+        // TODO: Calculate total students from enrollments
+        const totalStudents = 0;
         
         stats = {
           totalClasses: classes.length,
           totalStudents,
           totalFiles: files.length,
-          totalRevenue: 0, // Calculate from payments
+          totalRevenue: 0, // TODO: Calculate from payments
         };
       } else {
-        const classes = await storage.getClassesByStudent(userId);
-        const enrollments = await storage.getEnrollmentsByStudent(userId);
+        const [classes, enrollments] = await Promise.all([
+          storage.getClassesByStudent(userId),
+          storage.getEnrollmentsByStudent(userId)
+        ]);
         
         stats = {
           enrolledClasses: classes.length,
-          completedClasses: 0, // Calculate from progress
-          totalProgress: 0, // Average progress across all classes
-          certificates: 0, // Count of completed certificates
+          completedClasses: 0, // TODO: Calculate from progress
+          totalProgress: 0, // TODO: Average progress across all classes
+          certificates: 0, // TODO: Count of completed certificates
         };
       }
       
@@ -419,12 +488,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       const { q, type = 'all' } = req.query;
       
-      if (!q) {
+      if (!q || typeof q !== 'string' || q.trim().length === 0) {
         return res.status(400).json({ message: "Search query is required" });
       }
 
-      // Implement search logic here
-      // This is a basic example - you'd want to implement full-text search
+      // TODO: Implement full-text search
       const results = {
         classes: [],
         files: [],
@@ -446,8 +514,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
       return res.status(400).json({ message: 'File too large. Maximum size is 100MB.' });
     }
     
-    if (error.message.includes('Invalid file type')) {
+    if (error.message?.includes('Invalid file type')) {
       return res.status(400).json({ message: error.message });
+    }
+    
+    if (error.code === 'ENOENT') {
+      return res.status(404).json({ message: 'File not found.' });
     }
     
     res.status(500).json({ 
