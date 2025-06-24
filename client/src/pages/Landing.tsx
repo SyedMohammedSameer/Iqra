@@ -18,13 +18,20 @@ import {
   ArrowRight,
   Play,
   Menu,
-  X
+  X,
+  Sparkles,
+  Zap,
+  Trophy,
+  Clock,
+  Award,
+  MessageCircle
 } from "lucide-react";
 
 export default function Landing() {
   const { t } = useTranslation();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);
+  const [currentTestimonial, setCurrentTestimonial] = useState(0);
 
   useEffect(() => {
     const handleScroll = () => {
@@ -34,88 +41,117 @@ export default function Landing() {
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
+  // Auto-rotate testimonials
+  useEffect(() => {
+    const timer = setInterval(() => {
+      setCurrentTestimonial((prev) => (prev + 1) % testimonials.length);
+    }, 5000);
+    return () => clearInterval(timer);
+  }, []);
+
   const features = [
     {
       icon: <GraduationCap className="w-8 h-8" />,
       title: t('features.roleBasedAccess'),
       description: t('features.roleBasedAccessDesc'),
-      gradient: "from-emerald-500 to-teal-600",
+      gradient: "from-emerald-500 via-teal-500 to-emerald-600",
+      delay: "0s"
     },
     {
       icon: <Video className="w-8 h-8" />,
       title: t('features.liveClasses'),
       description: t('features.liveClassesDesc'),
-      gradient: "from-blue-500 to-indigo-600",
+      gradient: "from-blue-500 via-indigo-500 to-purple-600",
+      delay: "0.1s"
     },
     {
       icon: <Book className="w-8 h-8" />,
       title: t('features.resourceLibrary'),
       description: t('features.resourceLibraryDesc'),
-      gradient: "from-purple-500 to-pink-600",
+      gradient: "from-purple-500 via-pink-500 to-rose-600",
+      delay: "0.2s"
     },
     {
       icon: <Bot className="w-8 h-8" />,
       title: t('features.aiAssistant'),
       description: t('features.aiAssistantDesc'),
-      gradient: "from-orange-500 to-red-600",
+      gradient: "from-orange-500 via-red-500 to-pink-600",
+      delay: "0.3s"
     },
     {
       icon: <Globe className="w-8 h-8" />,
       title: t('features.multiLanguage'),
       description: t('features.multiLanguageDesc'),
-      gradient: "from-green-500 to-emerald-600",
+      gradient: "from-green-500 via-emerald-500 to-teal-600",
+      delay: "0.4s"
     },
     {
       icon: <Smartphone className="w-8 h-8" />,
       title: t('features.mobileFirst'),
       description: t('features.mobileFirstDesc'),
-      gradient: "from-pink-500 to-rose-600",
+      gradient: "from-pink-500 via-rose-500 to-red-600",
+      delay: "0.5s"
     },
   ];
 
   const stats = [
-    { number: "50K+", label: t('hero.stats.students'), icon: <Users className="w-6 h-6" /> },
-    { number: "1K+", label: t('hero.stats.teachers'), icon: <GraduationCap className="w-6 h-6" /> },
-    { number: "5K+", label: t('hero.stats.courses'), icon: <Book className="w-6 h-6" /> },
-    { number: "4.9★", label: "Rating", icon: <Star className="w-6 h-6" /> },
+    { number: "50K+", label: t('hero.stats.students'), icon: <Users className="w-6 h-6" />, color: "text-emerald-600" },
+    { number: "1K+", label: t('hero.stats.teachers'), icon: <GraduationCap className="w-6 h-6" />, color: "text-blue-600" },
+    { number: "5K+", label: t('hero.stats.courses'), icon: <Book className="w-6 h-6" />, color: "text-purple-600" },
+    { number: "4.9★", label: "Rating", icon: <Star className="w-6 h-6" />, color: "text-yellow-600" },
   ];
 
   const testimonials = [
     {
       name: "Ahmed Al-Rashid",
-      role: "Student",
-      content: "Iqra has transformed my Islamic learning journey. The AI assistant helps me understand complex concepts easily.",
-      avatar: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=64&h=64&fit=crop&crop=face"
+      role: "Student from Saudi Arabia",
+      content: "Iqra has transformed my Islamic learning journey. The AI assistant helps me understand complex concepts easily, and the live classes feel like being in a real classroom.",
+      avatar: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=64&h=64&fit=crop&crop=face",
+      rating: 5
     },
     {
       name: "Fatima Khan",
-      role: "Teacher",
-      content: "Teaching on Iqra is seamless. The platform's tools make it easy to engage with students worldwide.",
-      avatar: "https://images.unsplash.com/photo-1494790108755-2616b2e7f3a8?w=64&h=64&fit=crop&crop=face"
+      role: "Islamic Teacher from Pakistan",
+      content: "Teaching on Iqra is seamless. The platform's tools make it easy to engage with students worldwide. My classes are always full, and students are more engaged than ever.",
+      avatar: "https://images.unsplash.com/photo-1494790108755-2616b2e7f3a8?w=64&h=64&fit=crop&crop=face",
+      rating: 5
     },
     {
       name: "Omar Hassan",
-      role: "Parent",
-      content: "My children love learning Quran through Iqra. The interactive lessons keep them engaged and motivated.",
-      avatar: "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=64&h=64&fit=crop&crop=face"
+      role: "Parent from Bangladesh",
+      content: "My children love learning Quran through Iqra. The interactive lessons keep them engaged, and I can track their progress. It's like having a personal Islamic tutor at home.",
+      avatar: "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=64&h=64&fit=crop&crop=face",
+      rating: 5
     }
   ];
 
+  const achievements = [
+    { icon: <Trophy className="w-6 h-6" />, text: "Best Islamic Learning Platform 2024" },
+    { icon: <Award className="w-6 h-6" />, text: "1M+ Students Worldwide" },
+    { icon: <Clock className="w-6 h-6" />, text: "24/7 AI Support" },
+    { icon: <Sparkles className="w-6 h-6" />, text: "Certified by Islamic Scholars" }
+  ];
+
   return (
-    <div className="min-h-screen bg-gradient-to-b from-slate-50 to-white">
-      {/* Navigation */}
-      <nav className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
-        isScrolled ? 'bg-white/95 backdrop-blur-md shadow-lg' : 'bg-transparent'
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-emerald-50/30 overflow-x-hidden">
+      {/* Enhanced Navigation */}
+      <nav className={`fixed top-0 left-0 right-0 z-50 transition-all duration-500 ${
+        isScrolled 
+          ? 'bg-white/95 backdrop-blur-xl shadow-xl border-b border-white/20' 
+          : 'bg-transparent'
       }`}>
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center h-16 md:h-20">
-            {/* Logo */}
-            <div className="flex items-center space-x-3">
-              <div className="w-10 h-10 md:w-12 md:h-12 bg-gradient-to-br from-emerald-500 to-teal-600 rounded-xl flex items-center justify-center shadow-lg">
-                <span className="text-white font-bold text-lg md:text-xl font-serif">إقرأ</span>
+            {/* Enhanced Logo */}
+            <div className="flex items-center space-x-3 group">
+              <div className="relative">
+                <div className="w-10 h-10 md:w-12 md:h-12 bg-gradient-to-br from-emerald-500 via-teal-500 to-emerald-600 rounded-2xl flex items-center justify-center shadow-lg shadow-emerald-500/25 group-hover:shadow-emerald-500/40 transition-all duration-300 group-hover:scale-105">
+                  <span className="text-white font-bold text-lg md:text-xl font-serif">إقرأ</span>
+                </div>
+                <div className="absolute -inset-0.5 bg-gradient-to-r from-emerald-500 to-teal-500 rounded-2xl opacity-0 group-hover:opacity-20 blur transition-all duration-300"></div>
               </div>
               <div className="hidden sm:block">
-                <h1 className="text-xl md:text-2xl font-bold bg-gradient-to-r from-emerald-600 to-teal-600 bg-clip-text text-transparent">
+                <h1 className="text-xl md:text-2xl font-bold bg-gradient-to-r from-emerald-600 via-teal-600 to-emerald-700 bg-clip-text text-transparent">
                   Iqra
                 </h1>
                 <p className="text-xs text-gray-500 -mt-1">Islamic Learning</p>
@@ -124,20 +160,21 @@ export default function Landing() {
             
             {/* Desktop Navigation */}
             <div className="hidden lg:flex items-center space-x-8">
-              <a href="#features" className="text-gray-700 hover:text-emerald-600 font-medium transition-colors">
+              <a href="#features" className="text-gray-700 hover:text-emerald-600 font-medium transition-all duration-300 hover:scale-105">
                 Features
               </a>
-              <a href="#about" className="text-gray-700 hover:text-emerald-600 font-medium transition-colors">
+              <a href="#about" className="text-gray-700 hover:text-emerald-600 font-medium transition-all duration-300 hover:scale-105">
                 About
               </a>
-              <a href="#testimonials" className="text-gray-700 hover:text-emerald-600 font-medium transition-colors">
+              <a href="#testimonials" className="text-gray-700 hover:text-emerald-600 font-medium transition-all duration-300 hover:scale-105">
                 Reviews
               </a>
               <LanguageSelector />
-              <Button variant="ghost" className="text-gray-700 hover:text-emerald-600">
+              <Button variant="ghost" className="text-gray-700 hover:text-emerald-600 hover:bg-emerald-50 transition-all duration-300">
                 Sign In
               </Button>
-              <Button className="bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-600 hover:to-teal-700 text-white shadow-lg">
+              <Button className="bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-600 hover:to-teal-700 text-white shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105">
+                <Sparkles className="w-4 h-4 mr-2" />
                 Get Started
               </Button>
             </div>
@@ -149,31 +186,31 @@ export default function Landing() {
                 variant="ghost"
                 size="icon"
                 onClick={() => setIsMenuOpen(!isMenuOpen)}
-                className="text-gray-700"
+                className="text-gray-700 hover:bg-emerald-50 transition-all duration-300"
               >
                 {isMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
               </Button>
             </div>
           </div>
 
-          {/* Mobile Navigation */}
+          {/* Enhanced Mobile Navigation */}
           {isMenuOpen && (
-            <div className="lg:hidden absolute top-full left-0 right-0 bg-white border-t shadow-lg">
+            <div className="lg:hidden absolute top-full left-0 right-0 bg-white/95 backdrop-blur-xl border-t shadow-xl animate-in slide-in-from-top-2 duration-300">
               <div className="flex flex-col space-y-4 p-6">
-                <a href="#features" className="text-gray-700 hover:text-emerald-600 font-medium">
+                <a href="#features" className="text-gray-700 hover:text-emerald-600 font-medium transition-all duration-300 py-2 hover:pl-2">
                   Features
                 </a>
-                <a href="#about" className="text-gray-700 hover:text-emerald-600 font-medium">
+                <a href="#about" className="text-gray-700 hover:text-emerald-600 font-medium transition-all duration-300 py-2 hover:pl-2">
                   About
                 </a>
-                <a href="#testimonials" className="text-gray-700 hover:text-emerald-600 font-medium">
+                <a href="#testimonials" className="text-gray-700 hover:text-emerald-600 font-medium transition-all duration-300 py-2 hover:pl-2">
                   Reviews
                 </a>
                 <div className="flex space-x-3 pt-4 border-t">
-                  <Button variant="outline" className="flex-1">
+                  <Button variant="outline" className="flex-1 hover:bg-emerald-50 hover:border-emerald-300 transition-all duration-300">
                     Sign In
                   </Button>
-                  <Button className="flex-1 bg-gradient-to-r from-emerald-500 to-teal-600">
+                  <Button className="flex-1 bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-600 hover:to-teal-700 transition-all duration-300">
                     Get Started
                   </Button>
                 </div>
@@ -183,74 +220,83 @@ export default function Landing() {
         </div>
       </nav>
 
-      {/* Hero Section */}
+      {/* Enhanced Hero Section */}
       <section className="relative pt-24 md:pt-32 pb-20 overflow-hidden">
-        {/* Background Elements */}
-        <div className="absolute inset-0 bg-gradient-to-br from-emerald-50/50 via-white to-teal-50/50"></div>
-        <div className="absolute top-0 right-0 w-1/3 h-1/3 bg-gradient-to-bl from-emerald-100/30 to-transparent rounded-full blur-3xl"></div>
-        <div className="absolute bottom-0 left-0 w-1/4 h-1/4 bg-gradient-to-tr from-teal-100/30 to-transparent rounded-full blur-3xl"></div>
+        {/* Animated Background Elements */}
+        <div className="absolute inset-0">
+          <div className="absolute top-0 right-0 w-1/3 h-1/3 bg-gradient-to-bl from-emerald-100/50 to-transparent rounded-full blur-3xl animate-pulse"></div>
+          <div className="absolute bottom-0 left-0 w-1/4 h-1/4 bg-gradient-to-tr from-teal-100/50 to-transparent rounded-full blur-3xl animate-pulse" style={{ animationDelay: '1s' }}></div>
+          <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-1/2 h-1/2 bg-gradient-to-r from-emerald-50/30 to-teal-50/30 rounded-full blur-3xl animate-pulse" style={{ animationDelay: '2s' }}></div>
+        </div>
         
         <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid lg:grid-cols-2 gap-12 lg:gap-20 items-center">
-            {/* Content */}
-            <div className="space-y-8 text-center lg:text-left">
+            {/* Enhanced Content */}
+            <div className="space-y-8 text-center lg:text-left animate-in slide-in-from-left-8 duration-1000">
               <div className="space-y-6">
-                <Badge className="bg-emerald-100 text-emerald-700 hover:bg-emerald-200 px-4 py-2 text-sm font-medium">
-                  ✨ New: AI-Powered Islamic Learning
+                <Badge className="bg-gradient-to-r from-emerald-100 to-teal-100 text-emerald-700 hover:from-emerald-200 hover:to-teal-200 px-6 py-3 text-sm font-medium border-0 shadow-lg animate-in fade-in-0 duration-700">
+                  <Sparkles className="w-4 h-4 mr-2" />
+                  New: AI-Powered Islamic Learning
                 </Badge>
-                <h1 className="text-4xl md:text-5xl lg:text-6xl xl:text-7xl font-bold leading-tight">
+                
+                <h1 className="text-4xl md:text-5xl lg:text-6xl xl:text-7xl font-bold leading-tight animate-in slide-in-from-bottom-4 duration-1000" style={{ animationDelay: '0.2s' }}>
                   <span className="text-gray-900">{t('hero.title')}</span>{' '}
-                  <span className="bg-gradient-to-r from-emerald-600 via-teal-600 to-emerald-700 bg-clip-text text-transparent">
-                    {t('hero.titleHighlight')}
+                  <span className="relative">
+                    <span className="bg-gradient-to-r from-emerald-600 via-teal-600 to-emerald-700 bg-clip-text text-transparent">
+                      {t('hero.titleHighlight')}
+                    </span>
+                    <div className="absolute -bottom-2 left-0 right-0 h-3 bg-gradient-to-r from-emerald-200 to-teal-200 rounded-full -z-10 animate-in fade-in-0 duration-1000" style={{ animationDelay: '1s' }}></div>
                   </span>
                 </h1>
-                <p className="text-lg md:text-xl text-gray-600 leading-relaxed max-w-2xl mx-auto lg:mx-0">
+                
+                <p className="text-lg md:text-xl text-gray-600 leading-relaxed max-w-2xl mx-auto lg:mx-0 animate-in slide-in-from-bottom-4 duration-1000" style={{ animationDelay: '0.4s' }}>
                   {t('hero.subtitle')}
                 </p>
               </div>
               
-              {/* CTA Buttons */}
-              <div className="flex flex-col sm:flex-row gap-4 justify-center lg:justify-start">
-                <Button size="lg" className="bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-600 hover:to-teal-700 text-white px-8 py-6 text-lg shadow-xl hover:shadow-2xl transition-all duration-300 group">
+              {/* Enhanced CTA Buttons */}
+              <div className="flex flex-col sm:flex-row gap-4 justify-center lg:justify-start animate-in slide-in-from-bottom-4 duration-1000" style={{ animationDelay: '0.6s' }}>
+                <Button size="lg" className="bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-600 hover:to-teal-700 text-white px-8 py-6 text-lg shadow-xl hover:shadow-2xl transition-all duration-300 group hover:scale-105">
                   <Play className="w-5 h-5 mr-2 group-hover:scale-110 transition-transform" />
                   {t('hero.startLearning')}
                   <ArrowRight className="w-5 h-5 ml-2 group-hover:translate-x-1 transition-transform" />
                 </Button>
-                <Button variant="outline" size="lg" className="border-2 border-emerald-200 text-emerald-700 hover:bg-emerald-50 px-8 py-6 text-lg">
+                <Button variant="outline" size="lg" className="border-2 border-emerald-200 text-emerald-700 hover:bg-emerald-50 hover:border-emerald-300 px-8 py-6 text-lg hover:scale-105 transition-all duration-300">
+                  <MessageCircle className="w-5 h-5 mr-2" />
                   {t('hero.becomeTeacher')}
                 </Button>
               </div>
               
-              {/* Stats */}
-              <div className="grid grid-cols-2 md:grid-cols-4 gap-6 pt-8">
+              {/* Enhanced Stats */}
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-6 pt-8 animate-in slide-in-from-bottom-4 duration-1000" style={{ animationDelay: '0.8s' }}>
                 {stats.map((stat, index) => (
-                  <div key={index} className="text-center lg:text-left">
+                  <div key={index} className="text-center lg:text-left group hover:scale-110 transition-all duration-300">
                     <div className="flex items-center justify-center lg:justify-start space-x-2 mb-2">
-                      <div className="text-emerald-600">{stat.icon}</div>
-                      <div className="text-2xl md:text-3xl font-bold text-gray-900">{stat.number}</div>
+                      <div className={`${stat.color} group-hover:scale-110 transition-transform`}>{stat.icon}</div>
+                      <div className="text-2xl md:text-3xl font-bold text-gray-900 group-hover:text-emerald-600 transition-colors">{stat.number}</div>
                     </div>
-                    <div className="text-sm text-gray-600">{stat.label}</div>
+                    <div className="text-sm text-gray-600 group-hover:text-gray-700 transition-colors">{stat.label}</div>
                   </div>
                 ))}
               </div>
             </div>
             
-            {/* Hero Image */}
-            <div className="relative">
-              <div className="relative rounded-3xl overflow-hidden shadow-2xl">
+            {/* Enhanced Hero Image */}
+            <div className="relative animate-in slide-in-from-right-8 duration-1000" style={{ animationDelay: '0.4s' }}>
+              <div className="relative rounded-3xl overflow-hidden shadow-2xl shadow-emerald-500/20 hover:shadow-emerald-500/30 transition-all duration-500 group">
                 <img 
                   src="https://images.unsplash.com/photo-1544717297-fa95b6ee9643?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&h=600" 
                   alt="Islamic Learning" 
-                  className="w-full h-auto"
+                  className="w-full h-auto group-hover:scale-105 transition-transform duration-700"
                 />
-                <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent"></div>
+                <div className="absolute inset-0 bg-gradient-to-t from-black/20 via-transparent to-transparent"></div>
               </div>
               
-              {/* Floating Cards */}
-              <Card className="absolute -top-6 -left-6 w-64 shadow-xl border-0 bg-white/95 backdrop-blur-sm">
+              {/* Enhanced Floating Cards */}
+              <Card className="absolute -top-6 -left-6 w-64 shadow-2xl border-0 bg-white/95 backdrop-blur-xl animate-in slide-in-from-left-4 duration-1000" style={{ animationDelay: '1s' }}>
                 <CardContent className="p-4">
                   <div className="flex items-center space-x-3">
-                    <div className="w-12 h-12 bg-gradient-to-br from-emerald-400 to-teal-500 rounded-xl flex items-center justify-center">
+                    <div className="w-12 h-12 bg-gradient-to-br from-emerald-400 to-teal-500 rounded-xl flex items-center justify-center shadow-lg animate-pulse">
                       <Book className="w-6 h-6 text-white" />
                     </div>
                     <div>
@@ -258,17 +304,17 @@ export default function Landing() {
                       <p className="text-sm text-gray-600">Surah Al-Fatiha</p>
                       <div className="flex items-center mt-1">
                         <CheckCircle className="w-4 h-4 text-emerald-500 mr-1" />
-                        <span className="text-xs text-emerald-600">Completed</span>
+                        <span className="text-xs text-emerald-600 font-medium">Completed</span>
                       </div>
                     </div>
                   </div>
                 </CardContent>
               </Card>
               
-              <Card className="absolute -bottom-6 -right-6 w-56 shadow-xl border-0 bg-white/95 backdrop-blur-sm">
+              <Card className="absolute -bottom-6 -right-6 w-56 shadow-2xl border-0 bg-white/95 backdrop-blur-xl animate-in slide-in-from-right-4 duration-1000" style={{ animationDelay: '1.2s' }}>
                 <CardContent className="p-4">
                   <div className="flex items-center space-x-3">
-                    <div className="w-12 h-12 bg-gradient-to-br from-blue-400 to-indigo-500 rounded-xl flex items-center justify-center">
+                    <div className="w-12 h-12 bg-gradient-to-br from-blue-400 to-indigo-500 rounded-xl flex items-center justify-center shadow-lg">
                       <Video className="w-6 h-6 text-white" />
                     </div>
                     <div>
@@ -276,7 +322,7 @@ export default function Landing() {
                       <p className="text-sm text-gray-600">Starting in 15 min</p>
                       <div className="flex items-center mt-1">
                         <div className="w-2 h-2 bg-red-500 rounded-full mr-2 animate-pulse"></div>
-                        <span className="text-xs text-red-600">Live</span>
+                        <span className="text-xs text-red-600 font-medium">Live</span>
                       </div>
                     </div>
                   </div>
@@ -287,11 +333,30 @@ export default function Landing() {
         </div>
       </section>
 
-      {/* Features Section */}
-      <section id="features" className="py-20 bg-white">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center space-y-4 mb-16">
-            <Badge className="bg-emerald-100 text-emerald-700 px-4 py-2">
+      {/* Achievement Banner */}
+      <section className="py-12 bg-gradient-to-r from-emerald-600 via-teal-600 to-emerald-700 relative overflow-hidden">
+        <div className="absolute inset-0 bg-black/10"></div>
+        <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="grid md:grid-cols-4 gap-6">
+            {achievements.map((achievement, index) => (
+              <div key={index} className="flex items-center space-x-3 text-white animate-in slide-in-from-bottom-4 duration-700" style={{ animationDelay: `${index * 0.1}s` }}>
+                <div className="text-emerald-200 hover:text-white transition-colors">
+                  {achievement.icon}
+                </div>
+                <span className="text-sm font-medium">{achievement.text}</span>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* Enhanced Features Section */}
+      <section id="features" className="py-20 bg-white relative overflow-hidden">
+        <div className="absolute inset-0 bg-gradient-to-br from-gray-50/50 to-emerald-50/30"></div>
+        <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="text-center space-y-4 mb-16 animate-in slide-in-from-bottom-6 duration-1000">
+            <Badge className="bg-emerald-100 text-emerald-700 px-6 py-3 border-0 shadow-lg">
+              <Zap className="w-4 h-4 mr-2" />
               Platform Features
             </Badge>
             <h2 className="text-3xl md:text-4xl lg:text-5xl font-bold text-gray-900">
@@ -304,12 +369,16 @@ export default function Landing() {
           
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
             {features.map((feature, index) => (
-              <Card key={index} className="group hover:shadow-xl transition-all duration-300 border-0 shadow-lg hover:-translate-y-2">
+              <Card 
+                key={index} 
+                className="group hover:shadow-2xl transition-all duration-500 border-0 shadow-lg hover:-translate-y-4 bg-white/50 backdrop-blur-sm animate-in slide-in-from-bottom-6 duration-1000"
+                style={{ animationDelay: feature.delay }}
+              >
                 <CardContent className="p-8">
-                  <div className={`w-16 h-16 bg-gradient-to-br ${feature.gradient} rounded-2xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform duration-300`}>
+                  <div className={`w-16 h-16 bg-gradient-to-br ${feature.gradient} rounded-2xl flex items-center justify-center mb-6 group-hover:scale-110 transition-all duration-500 shadow-lg`}>
                     <div className="text-white">{feature.icon}</div>
                   </div>
-                  <h3 className="text-xl font-bold text-gray-900 mb-4 group-hover:text-emerald-600 transition-colors">
+                  <h3 className="text-xl font-bold text-gray-900 mb-4 group-hover:text-emerald-600 transition-colors duration-300">
                     {feature.title}
                   </h3>
                   <p className="text-gray-600 leading-relaxed">{feature.description}</p>
@@ -320,11 +389,15 @@ export default function Landing() {
         </div>
       </section>
 
-      {/* Testimonials Section */}
-      <section id="testimonials" className="py-20 bg-gradient-to-br from-emerald-50 to-teal-50">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center space-y-4 mb-16">
-            <Badge className="bg-emerald-100 text-emerald-700 px-4 py-2">
+      {/* Enhanced Testimonials Section */}
+      <section id="testimonials" className="py-20 bg-gradient-to-br from-emerald-50 via-white to-teal-50 relative overflow-hidden">
+        <div className="absolute inset-0 opacity-30">
+          <div className="absolute top-0 left-0 w-full h-full bg-gradient-to-r from-emerald-500/5 to-teal-500/5"></div>
+        </div>
+        <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="text-center space-y-4 mb-16 animate-in slide-in-from-bottom-6 duration-1000">
+            <Badge className="bg-emerald-100 text-emerald-700 px-6 py-3 border-0 shadow-lg">
+              <Heart className="w-4 h-4 mr-2" />
               Student Stories
             </Badge>
             <h2 className="text-3xl md:text-4xl lg:text-5xl font-bold text-gray-900">
@@ -335,50 +408,73 @@ export default function Landing() {
             </p>
           </div>
 
-          <div className="grid md:grid-cols-3 gap-8">
-            {testimonials.map((testimonial, index) => (
-              <Card key={index} className="border-0 shadow-lg hover:shadow-xl transition-all duration-300">
-                <CardContent className="p-8">
-                  <div className="flex items-center space-x-1 mb-4">
-                    {[...Array(5)].map((_, i) => (
-                      <Star key={i} className="w-5 h-5 fill-yellow-400 text-yellow-400" />
+          {/* Testimonial Carousel */}
+          <div className="relative max-w-4xl mx-auto">
+            <Card className="border-0 shadow-2xl hover:shadow-3xl transition-all duration-500 bg-white/80 backdrop-blur-sm">
+              <CardContent className="p-8 md:p-12">
+                <div className="text-center space-y-6">
+                  <div className="flex justify-center space-x-1 mb-6">
+                    {[...Array(testimonials[currentTestimonial].rating)].map((_, i) => (
+                      <Star key={i} className="w-6 h-6 fill-yellow-400 text-yellow-400" />
                     ))}
                   </div>
-                  <p className="text-gray-700 mb-6 leading-relaxed">"{testimonial.content}"</p>
-                  <div className="flex items-center space-x-3">
+                  <blockquote className="text-xl md:text-2xl text-gray-700 leading-relaxed font-medium">
+                    "{testimonials[currentTestimonial].content}"
+                  </blockquote>
+                  <div className="flex items-center justify-center space-x-4">
                     <img 
-                      src={testimonial.avatar} 
-                      alt={testimonial.name}
-                      className="w-12 h-12 rounded-full object-cover"
+                      src={testimonials[currentTestimonial].avatar} 
+                      alt={testimonials[currentTestimonial].name}
+                      className="w-16 h-16 rounded-full object-cover ring-4 ring-emerald-100"
                     />
-                    <div>
-                      <p className="font-semibold text-gray-900">{testimonial.name}</p>
-                      <p className="text-sm text-gray-600">{testimonial.role}</p>
+                    <div className="text-left">
+                      <p className="font-semibold text-gray-900 text-lg">{testimonials[currentTestimonial].name}</p>
+                      <p className="text-gray-600">{testimonials[currentTestimonial].role}</p>
                     </div>
                   </div>
-                </CardContent>
-              </Card>
-            ))}
+                </div>
+              </CardContent>
+            </Card>
+            
+            {/* Testimonial Indicators */}
+            <div className="flex justify-center space-x-2 mt-8">
+              {testimonials.map((_, index) => (
+                <button
+                  key={index}
+                  onClick={() => setCurrentTestimonial(index)}
+                  className={`w-3 h-3 rounded-full transition-all duration-300 ${
+                    index === currentTestimonial 
+                      ? 'bg-emerald-600 scale-125' 
+                      : 'bg-gray-300 hover:bg-gray-400'
+                  }`}
+                />
+              ))}
+            </div>
           </div>
         </div>
       </section>
 
-      {/* CTA Section */}
-      <section className="py-20 bg-gradient-to-r from-emerald-600 to-teal-600">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-          <div className="space-y-8">
-            <h2 className="text-3xl md:text-4xl lg:text-5xl font-bold text-white">
+      {/* Enhanced CTA Section */}
+      <section className="py-20 bg-gradient-to-r from-emerald-600 via-teal-600 to-emerald-700 relative overflow-hidden">
+        <div className="absolute inset-0">
+          <div className="absolute top-0 left-0 w-full h-full bg-gradient-to-br from-emerald-700/50 to-teal-700/50"></div>
+          <div className="absolute top-1/4 right-1/4 w-32 h-32 bg-white/10 rounded-full blur-xl animate-pulse"></div>
+          <div className="absolute bottom-1/4 left-1/4 w-24 h-24 bg-white/10 rounded-full blur-xl animate-pulse" style={{ animationDelay: '1s' }}></div>
+        </div>
+        <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+          <div className="space-y-8 animate-in slide-in-from-bottom-6 duration-1000">
+            <h2 className="text-3xl md:text-4xl lg:text-5xl font-bold text-white leading-tight">
               Start Your Islamic Learning Journey Today
             </h2>
-            <p className="text-xl text-emerald-100 max-w-3xl mx-auto">
+            <p className="text-xl text-emerald-100 max-w-3xl mx-auto leading-relaxed">
               Join thousands of students and teachers worldwide. Begin with our free courses and discover the beauty of Islamic knowledge.
             </p>
-            <div className="flex flex-col sm:flex-row gap-4 justify-center">
-              <Button size="lg" className="bg-white text-emerald-600 hover:bg-gray-50 px-8 py-6 text-lg shadow-xl">
-                <Heart className="w-5 h-5 mr-2" />
+            <div className="flex flex-col sm:flex-row gap-4 justify-center max-w-md mx-auto">
+              <Button size="lg" className="bg-white text-emerald-600 hover:bg-gray-50 hover:scale-105 px-8 py-6 text-lg shadow-xl transition-all duration-300 group">
+                <Heart className="w-5 h-5 mr-2 group-hover:scale-110 transition-transform" />
                 Start Learning Free
               </Button>
-              <Button variant="outline" size="lg" className="border-2 border-white text-white hover:bg-white hover:text-emerald-600 px-8 py-6 text-lg">
+              <Button variant="outline" size="lg" className="border-2 border-white text-white hover:bg-white hover:text-emerald-600 hover:scale-105 px-8 py-6 text-lg transition-all duration-300">
                 Become an Instructor
               </Button>
             </div>
@@ -386,13 +482,14 @@ export default function Landing() {
         </div>
       </section>
 
-      {/* Footer */}
-      <footer className="bg-gray-900 text-white py-16">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      {/* Enhanced Footer */}
+      <footer className="bg-gray-900 text-white py-16 relative overflow-hidden">
+        <div className="absolute inset-0 bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900"></div>
+        <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid md:grid-cols-4 gap-8">
             <div className="space-y-4">
               <div className="flex items-center space-x-3">
-                <div className="w-12 h-12 bg-gradient-to-br from-emerald-500 to-teal-600 rounded-xl flex items-center justify-center">
+                <div className="w-12 h-12 bg-gradient-to-br from-emerald-500 to-teal-600 rounded-xl flex items-center justify-center shadow-lg">
                   <span className="text-white font-bold text-lg font-serif">إقرأ</span>
                 </div>
                 <div>
@@ -406,32 +503,32 @@ export default function Landing() {
             </div>
             
             <div>
-              <h6 className="font-semibold mb-4">Platform</h6>
+              <h6 className="font-semibold mb-4 text-emerald-400">Platform</h6>
               <ul className="space-y-2 text-gray-400">
-                <li><a href="#" className="hover:text-white transition">Student Dashboard</a></li>
-                <li><a href="#" className="hover:text-white transition">Teacher Portal</a></li>
-                <li><a href="#" className="hover:text-white transition">Course Catalog</a></li>
-                <li><a href="#" className="hover:text-white transition">AI Assistant</a></li>
+                <li><a href="#" className="hover:text-white transition-colors hover:translate-x-1 transform duration-300">Student Dashboard</a></li>
+                <li><a href="#" className="hover:text-white transition-colors hover:translate-x-1 transform duration-300">Teacher Portal</a></li>
+                <li><a href="#" className="hover:text-white transition-colors hover:translate-x-1 transform duration-300">Course Catalog</a></li>
+                <li><a href="#" className="hover:text-white transition-colors hover:translate-x-1 transform duration-300">AI Assistant</a></li>
               </ul>
             </div>
             
             <div>
-              <h6 className="font-semibold mb-4">Support</h6>
+              <h6 className="font-semibold mb-4 text-emerald-400">Support</h6>
               <ul className="space-y-2 text-gray-400">
-                <li><a href="#" className="hover:text-white transition">Help Center</a></li>
-                <li><a href="#" className="hover:text-white transition">Contact Us</a></li>
-                <li><a href="#" className="hover:text-white transition">Community</a></li>
-                <li><a href="#" className="hover:text-white transition">Resources</a></li>
+                <li><a href="#" className="hover:text-white transition-colors hover:translate-x-1 transform duration-300">Help Center</a></li>
+                <li><a href="#" className="hover:text-white transition-colors hover:translate-x-1 transform duration-300">Contact Us</a></li>
+                <li><a href="#" className="hover:text-white transition-colors hover:translate-x-1 transform duration-300">Community</a></li>
+                <li><a href="#" className="hover:text-white transition-colors hover:translate-x-1 transform duration-300">Resources</a></li>
               </ul>
             </div>
             
             <div>
-              <h6 className="font-semibold mb-4">Legal</h6>
+              <h6 className="font-semibold mb-4 text-emerald-400">Legal</h6>
               <ul className="space-y-2 text-gray-400">
-                <li><a href="#" className="hover:text-white transition">Privacy Policy</a></li>
-                <li><a href="#" className="hover:text-white transition">Terms of Service</a></li>
-                <li><a href="#" className="hover:text-white transition">Cookie Policy</a></li>
-                <li><a href="#" className="hover:text-white transition">Accessibility</a></li>
+                <li><a href="#" className="hover:text-white transition-colors hover:translate-x-1 transform duration-300">Privacy Policy</a></li>
+                <li><a href="#" className="hover:text-white transition-colors hover:translate-x-1 transform duration-300">Terms of Service</a></li>
+                <li><a href="#" className="hover:text-white transition-colors hover:translate-x-1 transform duration-300">Cookie Policy</a></li>
+                <li><a href="#" className="hover:text-white transition-colors hover:translate-x-1 transform duration-300">Accessibility</a></li>
               </ul>
             </div>
           </div>
@@ -442,7 +539,9 @@ export default function Landing() {
             </p>
             <div className="flex items-center space-x-6 mt-4 md:mt-0">
               <span className="text-gray-400 text-sm">Built with React & Node.js</span>
-              <span className="text-gray-400 text-sm">Made with ❤️ for the Ummah</span>
+              <span className="text-gray-400 text-sm flex items-center">
+                Made with <Heart className="w-4 h-4 mx-1 text-red-500" /> for the Ummah
+              </span>
             </div>
           </div>
         </div>

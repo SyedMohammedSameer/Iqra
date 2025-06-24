@@ -9,39 +9,34 @@ import NotFound from "@/pages/not-found";
 import Landing from "@/pages/Landing";
 import StudentDashboard from "@/pages/StudentDashboard";
 import TeacherDashboard from "@/pages/TeacherDashboard";
+import ErrorBoundary from "@/components/ErrorBoundary";
+import LoadingSpinner from "@/components/LoadingSpinner";
 import "@/lib/i18n";
 
-function Router() {
+function AuthenticatedApp() {
   const { isAuthenticated, isLoading, user } = useAuth();
 
-  // Show loading while checking authentication
   if (isLoading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center bg-gray-50">
-        <div className="text-center">
-          <div className="w-16 h-16 bg-green-600 rounded-full flex items-center justify-center mx-auto mb-4 animate-pulse">
-            <span className="text-white font-bold text-2xl">إ</span>
-          </div>
-          <p className="text-gray-600">Loading...</p>
-        </div>
-      </div>
-    );
+    return <LoadingSpinner />;
   }
 
+  if (!isAuthenticated) {
+    return <Landing />;
+  }
+
+  // Redirect based on user role
+  if (user?.role === 'teacher') {
+    return <TeacherDashboard />;
+  }
+
+  return <StudentDashboard />;
+}
+
+function Router() {
   return (
     <Switch>
-      {!isAuthenticated ? (
-        // Show landing page for non-authenticated users
-        <Route path="/" component={Landing} />
-      ) : (
-        // Show appropriate dashboard based on user role
-        <>
-          <Route path="/">
-            {(user as any)?.role === 'teacher' ? <TeacherDashboard /> : <StudentDashboard />}
-          </Route>
-        </>
-      )}
-      {/* Fallback to 404 */}
+      <Route path="/" component={AuthenticatedApp} />
+      <Route path="/landing" component={Landing} />
       <Route component={NotFound} />
     </Switch>
   );
@@ -49,14 +44,18 @@ function Router() {
 
 function App() {
   return (
-    <QueryClientProvider client={queryClient}>
-      <TooltipProvider>
-        <LanguageProvider>
-          <Toaster />
-          <Router />
-        </LanguageProvider>
-      </TooltipProvider>
-    </QueryClientProvider>
+    <ErrorBoundary>
+      <QueryClientProvider client={queryClient}>
+        <TooltipProvider>
+          <LanguageProvider>
+            <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-emerald-50/30">
+              <Router />
+              <Toaster />
+            </div>
+          </LanguageProvider>
+        </TooltipProvider>
+      </QueryClientProvider>
+    </ErrorBoundary>
   );
 }
 
