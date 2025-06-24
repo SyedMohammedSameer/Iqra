@@ -22,22 +22,30 @@
   --destructive: hsl(0, 84.2%, 60.2%);
   --destructive-foreground: hsl(60, 9.1%, 97.8%);
   --ring: hsl(142, 76%, 36%);
-  --radius: 0.5rem;
+  --radius: 0.75rem;
   
-  /* Islamic color palette */
-  --islamic-green-50: hsl(120, 60%, 96%);
-  --islamic-green-100: hsl(121, 47%, 88%);
-  --islamic-green-500: hsl(142, 76%, 36%);
-  --islamic-green-600: hsl(142, 71%, 33%);
-  --islamic-green-700: hsl(142, 72%, 29%);
-  --islamic-green-800: hsl(142, 80%, 24%);
-  --islamic-green-900: hsl(143, 85%, 20%);
+  /* Enhanced Iqra color palette */
+  --emerald-50: hsl(151, 81%, 96%);
+  --emerald-100: hsl(149, 80%, 90%);
+  --emerald-200: hsl(152, 76%, 80%);
+  --emerald-300: hsl(156, 72%, 67%);
+  --emerald-400: hsl(158, 64%, 52%);
+  --emerald-500: hsl(160, 84%, 39%);
+  --emerald-600: hsl(161, 94%, 30%);
+  --emerald-700: hsl(163, 94%, 24%);
+  --emerald-800: hsl(166, 86%, 20%);
+  --emerald-900: hsl(169, 83%, 16%);
   
-  --islamic-gold-50: hsl(48, 100%, 96%);
-  --islamic-gold-100: hsl(48, 96%, 89%);
-  --islamic-gold-500: hsl(45, 93%, 47%);
-  --islamic-gold-600: hsl(32, 95%, 44%);
-  --islamic-gold-700: hsl(26, 90%, 37%);
+  --teal-50: hsl(166, 76%, 97%);
+  --teal-100: hsl(167, 85%, 89%);
+  --teal-200: hsl(168, 84%, 78%);
+  --teal-300: hsl(171, 77%, 64%);
+  --teal-400: hsl(172, 66%, 50%);
+  --teal-500: hsl(173, 80%, 40%);
+  --teal-600: hsl(175, 84%, 32%);
+  --teal-700: hsl(175, 77%, 26%);
+  --teal-800: hsl(176, 69%, 22%);
+  --teal-900: hsl(176, 61%, 19%);
 }
 
 .dark {
@@ -67,13 +75,77 @@
     @apply border-border;
   }
 
+  html {
+    scroll-behavior: smooth;
+    font-feature-settings: "rlig" 1, "calt" 1;
+  }
+
   body {
     @apply font-sans antialiased bg-background text-foreground;
+    font-feature-settings: "rlig" 1, "calt" 1;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+  
+  /* Enhanced Typography */
+  h1, h2, h3, h4, h5, h6 {
+    @apply font-semibold tracking-tight;
+    line-height: 1.1;
+  }
+  
+  h1 {
+    @apply text-4xl md:text-5xl lg:text-6xl;
+  }
+  
+  h2 {
+    @apply text-3xl md:text-4xl lg:text-5xl;
+  }
+  
+  h3 {
+    @apply text-2xl md:text-3xl lg:text-4xl;
+  }
+  
+  /* Modern Button Styles */
+  .btn-gradient {
+    @apply bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-600 hover:to-teal-700;
+    @apply text-white font-semibold py-3 px-6 rounded-xl;
+    @apply transition-all duration-300 shadow-lg hover:shadow-xl;
+    @apply transform hover:-translate-y-0.5;
+  }
+  
+  .btn-outline-gradient {
+    @apply bg-transparent border-2 border-emerald-500 text-emerald-600;
+    @apply hover:bg-emerald-50 font-semibold py-3 px-6 rounded-xl;
+    @apply transition-all duration-300;
+  }
+  
+  /* Enhanced Card Styles */
+  .card-modern {
+    @apply bg-white rounded-2xl shadow-sm border border-gray-100;
+    @apply hover:shadow-xl hover:-translate-y-1 transition-all duration-300;
+  }
+  
+  .card-gradient {
+    @apply bg-gradient-to-br from-white to-gray-50/50;
+    @apply rounded-2xl shadow-lg border border-gray-100/50;
+    @apply hover:shadow-xl transition-all duration-300;
   }
   
   /* Islamic geometric pattern background */
   .islamic-pattern {
-    background-image: url('data:image/svg+xml,%3Csvg width="20" height="20" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"%3E%3Cg fill="%2316a34a" fill-opacity="0.03"%3E%3Cpolygon points="10 0 20 10 10 20 0 10"/%3E%3C/g%3E%3C/svg%3E');
+    background-image: url('data:image/svg+xml,%3Csvg width="60" height="60" viewBox="0 0 60 60" xmlns="http://www.w3.org/2000/svg"%3E%3Cg fill="none" fill-rule="evenodd"%3E%3Cg fill="%2316a34a" fill-opacity="0.03"%3E%3Cpath d="M30 30c0-6.627-5.373-12-12-12s-12 5.373-12 12 5.373 12 12 12 12-5.373 12-12zm12 0c0-6.627-5.373-12-12-12s-12 5.373-12 12 5.373 12 12 12 12-5.373 12-12z"/%3E%3C/g%3E%3C/g%3E%3C/svg%3E');
+  }
+  
+  /* Enhanced Glass Effect */
+  .glass-effect {
+    @apply bg-white/80 backdrop-blur-lg border border-white/20;
+    @apply shadow-xl shadow-black/5;
+  }
+  
+  /* Gradient Text */
+  .gradient-text {
+    @apply bg-gradient-to-r from-emerald-600 via-teal-600 to-emerald-700;
+    @apply bg-clip-text text-transparent;
   }
   
   /* RTL support for Arabic and Urdu */
@@ -85,159 +157,229 @@
     flex-direction: row-reverse;
   }
   
-  /* Islamic green gradient */
-  .gradient-islamic {
-    background: linear-gradient(135deg, hsl(142, 71%, 33%) 0%, hsl(142, 76%, 36%) 100%);
-  }
-  
-  /* Custom Islamic styling */
-  .islamic-card {
-    @apply bg-white rounded-xl shadow-sm border border-gray-200 hover:shadow-md transition-all duration-300;
-  }
-  
-  .islamic-button-primary {
-    @apply bg-green-600 hover:bg-green-700 text-white font-semibold py-2 px-4 rounded-lg transition-all duration-200 shadow-sm hover:shadow-md;
-  }
-  
-  .islamic-button-secondary {
-    @apply bg-yellow-600 hover:bg-yellow-700 text-white font-semibold py-2 px-4 rounded-lg transition-all duration-200 shadow-sm hover:shadow-md;
-  }
-  
-  .islamic-input {
-    @apply w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all duration-200;
-  }
-  
   /* Arabic text styling */
   .arabic-text {
     font-family: 'Amiri', 'Times New Roman', serif;
     direction: rtl;
     text-align: right;
+    line-height: 1.8;
   }
   
-  /* Islamic geometric decorations */
-  .islamic-decoration::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background-image: radial-gradient(circle at 1px 1px, hsl(142, 76%, 36%) 1px, transparent 0);
-    background-size: 20px 20px;
-    opacity: 0.05;
-    pointer-events: none;
+  /* Enhanced Animations */
+  @keyframes float {
+    0%, 100% {
+      transform: translateY(0px);
+    }
+    50% {
+      transform: translateY(-10px);
+    }
+  }
+  
+  @keyframes pulse-glow {
+    0%, 100% {
+      box-shadow: 0 0 20px rgba(16, 185, 129, 0.1);
+    }
+    50% {
+      box-shadow: 0 0 40px rgba(16, 185, 129, 0.2);
+    }
+  }
+  
+  @keyframes slide-in-bottom {
+    from {
+      opacity: 0;
+      transform: translateY(30px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+  
+  @keyframes slide-in-right {
+    from {
+      opacity: 0;
+      transform: translateX(30px);
+    }
+    to {
+      opacity: 1;
+      transform: translateX(0);
+    }
+  }
+  
+  .animate-float {
+    animation: float 3s ease-in-out infinite;
+  }
+  
+  .animate-pulse-glow {
+    animation: pulse-glow 2s ease-in-out infinite;
+  }
+  
+  .animate-slide-in-bottom {
+    animation: slide-in-bottom 0.6s ease-out;
+  }
+  
+  .animate-slide-in-right {
+    animation: slide-in-right 0.6s ease-out;
+  }
+  
+  /* Enhanced Loading Spinner */
+  @keyframes spin-slow {
+    to {
+      transform: rotate(360deg);
+    }
+  }
+  
+  .animate-spin-slow {
+    animation: spin-slow 2s linear infinite;
   }
   
   /* Progress bar Islamic styling */
-  .islamic-progress {
-    @apply w-full bg-gray-200 rounded-full h-2;
+  .progress-islamic {
+    @apply w-full bg-emerald-100 rounded-full h-3;
   }
   
-  .islamic-progress-fill {
-    @apply bg-green-600 h-2 rounded-full transition-all duration-300;
+  .progress-fill-islamic {
+    @apply bg-gradient-to-r from-emerald-500 to-teal-600 h-3 rounded-full;
+    @apply transition-all duration-500 ease-out;
   }
   
-  /* Card hover effects */
-  .hover-lift {
-    @apply transition-all duration-300 hover:shadow-lg hover:-translate-y-1;
+  /* Enhanced Card hover effects */
+  .card-hover-lift {
+    @apply transition-all duration-300 hover:shadow-2xl hover:-translate-y-2;
   }
   
   /* Badge styling */
-  .badge-active {
-    @apply inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800;
+  .badge-emerald {
+    @apply inline-flex items-center px-3 py-1 rounded-full text-sm font-medium;
+    @apply bg-emerald-100 text-emerald-800 border border-emerald-200;
   }
   
-  .badge-scheduled {
-    @apply inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800;
+  .badge-teal {
+    @apply inline-flex items-center px-3 py-1 rounded-full text-sm font-medium;
+    @apply bg-teal-100 text-teal-800 border border-teal-200;
   }
   
-  .badge-inactive {
-    @apply inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-800;
+  .badge-live {
+    @apply inline-flex items-center px-3 py-1 rounded-full text-sm font-medium;
+    @apply bg-red-100 text-red-800 border border-red-200;
   }
   
-  /* File upload area styling */
-  .upload-area {
-    @apply border-2 border-dashed border-gray-300 rounded-xl p-8 text-center transition-colors hover:border-green-500 hover:bg-green-50;
-  }
-  
-  .upload-area.drag-over {
-    @apply border-green-500 bg-green-50;
-  }
-  
-  /* Chat message styling */
-  .chat-message-user {
-    @apply bg-gray-50 rounded-lg p-3 text-sm text-gray-700;
-  }
-  
-  .chat-message-ai {
-    @apply bg-green-50 rounded-lg p-3 text-sm text-gray-700;
-  }
-  
-  /* Calendar widget styling */
-  .calendar-event {
-    @apply flex items-center space-x-3 p-2 hover:bg-gray-50 rounded-lg transition-colors cursor-pointer;
+  /* Enhanced Input Styling */
+  .input-modern {
+    @apply w-full px-4 py-3 border border-gray-200 rounded-xl;
+    @apply focus:ring-2 focus:ring-emerald-500 focus:border-transparent;
+    @apply transition-all duration-200 bg-white shadow-sm;
+    @apply hover:border-emerald-300;
   }
   
   /* Navigation styling */
-  .nav-link {
-    @apply text-gray-600 hover:text-green-600 px-3 py-2 rounded-md text-sm font-medium transition-colors;
+  .nav-blur {
+    @apply bg-white/95 backdrop-blur-md border-b border-white/20;
+    @apply shadow-lg shadow-black/5;
   }
   
-  /* Responsive text sizing */
-  @screen sm {
-    .hero-title {
-      @apply text-5xl;
+  /* Footer styling */
+  .footer-dark {
+    @apply bg-gradient-to-br from-gray-900 via-gray-900 to-gray-800;
+  }
+  
+  /* Responsive spacing utilities */
+  .section-padding {
+    @apply py-16 md:py-20 lg:py-24;
+  }
+  
+  .container-padding {
+    @apply px-4 sm:px-6 lg:px-8;
+  }
+  
+  /* Focus styles for accessibility */
+  *:focus {
+    outline: 2px solid hsl(160, 84%, 39%);
+    outline-offset: 2px;
+  }
+  
+  /* Scrollbar styling */
+  ::-webkit-scrollbar {
+    width: 8px;
+  }
+  
+  ::-webkit-scrollbar-track {
+    @apply bg-gray-100;
+  }
+  
+  ::-webkit-scrollbar-thumb {
+    @apply bg-emerald-400 rounded-full;
+  }
+  
+  ::-webkit-scrollbar-thumb:hover {
+    @apply bg-emerald-500;
+  }
+  
+  /* Selection styling */
+  ::selection {
+    @apply bg-emerald-200 text-emerald-900;
+  }
+  
+  /* Print styles */
+  @media print {
+    .no-print {
+      display: none !important;
+    }
+    
+    * {
+      @apply text-black bg-white;
     }
   }
   
-  @screen lg {
-    .hero-title {
-      @apply text-6xl;
+  /* Dark mode support */
+  @media (prefers-color-scheme: dark) {
+    .auto-dark {
+      @apply dark;
+    }
+  }
+  
+  /* Reduced motion */
+  @media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.01ms !important;
+    }
+  }
+  
+  /* High contrast mode */
+  @media (prefers-contrast: high) {
+    .card-modern {
+      @apply border-2 border-gray-400;
+    }
+    
+    .btn-gradient {
+      @apply border-2 border-emerald-700;
     }
   }
 }
 
-/* Custom animations */
-@keyframes islamic-fade-in {
-  from {
-    opacity: 0;
-    transform: translateY(20px);
+/* Additional utility classes */
+@layer utilities {
+  .text-balance {
+    text-wrap: balance;
   }
-  to {
-    opacity: 1;
-    transform: translateY(0);
+  
+  .text-gradient-emerald {
+    @apply bg-gradient-to-r from-emerald-600 to-teal-600 bg-clip-text text-transparent;
   }
-}
-
-.animate-islamic-fade-in {
-  animation: islamic-fade-in 0.6s ease-out;
-}
-
-/* Loading spinner */
-@keyframes islamic-spin {
-  to {
-    transform: rotate(360deg);
+  
+  .border-gradient {
+    border-image: linear-gradient(45deg, #10b981, #0d9488) 1;
   }
-}
-
-.animate-islamic-spin {
-  animation: islamic-spin 1s linear infinite;
-}
-
-/* Scroll behavior */
-html {
-  scroll-behavior: smooth;
-}
-
-/* Focus styles for accessibility */
-*:focus {
-  outline: 2px solid hsl(142, 76%, 36%);
-  outline-offset: 2px;
-}
-
-/* Print styles */
-@media print {
-  .no-print {
-    display: none !important;
+  
+  .shadow-glow-emerald {
+    box-shadow: 0 0 20px rgba(16, 185, 129, 0.15);
+  }
+  
+  .shadow-glow-teal {
+    box-shadow: 0 0 20px rgba(13, 148, 136, 0.15);
   }
 }

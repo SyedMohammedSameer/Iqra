@@ -3,49 +3,49 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1" />
-    <meta name="description" content="Islamic Learning Hub - Comprehensive Islamic education platform with role-based authentication, live classes, AI assistant, and multi-language support. Learn Quran, Hadith, Islamic history with certified instructors." />
-    <meta name="keywords" content="Islamic education, Quran learning, Hadith studies, Islamic history, online Islamic classes, Muslim education, Islamic teachers, Islamic students" />
-    <meta name="author" content="Islamic Learning Hub" />
+    <meta name="description" content="Iqra - Modern Islamic Learning Platform with live classes, AI assistant, and multi-language support. Learn Quran, Hadith, Islamic history with certified instructors worldwide." />
+    <meta name="keywords" content="Iqra, Islamic education, Quran learning, Hadith studies, Islamic history, online Islamic classes, Muslim education, Islamic teachers, Islamic students" />
+    <meta name="author" content="Iqra - Islamic Learning Platform" />
     
     <!-- Open Graph / Facebook -->
     <meta property="og:type" content="website" />
-    <meta property="og:url" content="https://islamic-learning-hub.replit.app/" />
-    <meta property="og:title" content="Islamic Learning Hub - Authentic Islamic Education Platform" />
-    <meta property="og:description" content="Join thousands of students and teachers in our comprehensive Islamic education platform. Learn Quran, Hadith, Islamic history, and more with certified instructors." />
+    <meta property="og:url" content="https://iqra-learning.vercel.app/" />
+    <meta property="og:title" content="Iqra - Modern Islamic Learning Platform" />
+    <meta property="og:description" content="Join thousands of students and teachers worldwide in our comprehensive Islamic education platform. Learn Quran, Hadith, Islamic history, and more with certified instructors." />
     <meta property="og:image" content="https://images.unsplash.com/photo-1544717297-fa95b6ee9643?ixlib=rb-4.0.3&auto=format&fit=crop&w=1200&h=630" />
 
     <!-- Twitter -->
     <meta property="twitter:card" content="summary_large_image" />
-    <meta property="twitter:url" content="https://islamic-learning-hub.replit.app/" />
-    <meta property="twitter:title" content="Islamic Learning Hub - Authentic Islamic Education Platform" />
-    <meta property="twitter:description" content="Join thousands of students and teachers in our comprehensive Islamic education platform. Learn Quran, Hadith, Islamic history, and more with certified instructors." />
+    <meta property="twitter:url" content="https://iqra-learning.vercel.app/" />
+    <meta property="twitter:title" content="Iqra - Modern Islamic Learning Platform" />
+    <meta property="twitter:description" content="Join thousands of students and teachers worldwide in our comprehensive Islamic education platform. Learn Quran, Hadith, Islamic history, and more with certified instructors." />
     <meta property="twitter:image" content="https://images.unsplash.com/photo-1544717297-fa95b6ee9643?ixlib=rb-4.0.3&auto=format&fit=crop&w=1200&h=630" />
 
     <!-- Favicon -->
-    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='32' height='32' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='6' fill='%2316a34a'/%3E%3Ctext x='16' y='22' text-anchor='middle' fill='white' font-size='20' font-weight='bold' font-family='serif'%3Eإ%3C/text%3E%3C/svg%3E" />
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='32' height='32' viewBox='0 0 32 32'%3E%3Cdefs%3E%3ClinearGradient id='grad' x1='0%25' y1='0%25' x2='100%25' y2='100%25'%3E%3Cstop offset='0%25' style='stop-color:%2316a34a;stop-opacity:1' /%3E%3Cstop offset='100%25' style='stop-color:%23059669;stop-opacity:1' /%3E%3C/linearGradient%3E%3C/defs%3E%3Crect width='32' height='32' rx='8' fill='url(%23grad)'/%3E%3Ctext x='16' y='22' text-anchor='middle' fill='white' font-size='16' font-weight='bold' font-family='serif'%3Eإقرأ%3C/text%3E%3C/svg%3E" />
     
     <!-- Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Amiri:wght@400;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Amiri:wght@400;700&family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     
     <!-- Theme color -->
     <meta name="theme-color" content="#16a34a" />
     
-    <!-- Manifest for PWA -->
-    <link rel="manifest" href="data:application/json;base64,eyJuYW1lIjoiSXNsYW1pYyBMZWFybmluZyBIdWIiLCJzaG9ydF9uYW1lIjoiSXNsYW1pYyBIdWIiLCJzdGFydF91cmwiOiIvIiwiZGlzcGxheSI6InN0YW5kYWxvbmUiLCJiYWNrZ3JvdW5kX2NvbG9yIjoiI2ZmZmZmZiIsInRoZW1lX2NvbG9yIjoiIzE2YTM0YSIsImljb25zIjpbeyJzcmMiOiJkYXRhOmltYWdlL3N2Zyt4bWwsJTNDc3ZnIHhtbG5zPSdodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2Zycgd2lkdGg9JzE5MicgaGVpZ2h0PScxOTInIHZpZXdCb3g9JzAgMCAxOTIgMTkyJyUzRSUzQ3JlY3Qgd2lkdGg9JzE5MicgaGVpZ2h0PScxOTInIHJ4PSczMicgZmlsbD0nJTIzMTZhMzRhJy8lM0UlM0N0ZXh0IHg9Jzk2JyB5PScxMzAnIHRleHQtYW5jaG9yPSdtaWRkbGUnIGZpbGw9J3doaXRlJyBmb250LXNpemU9JzEwMCcgZm9udC13ZWlnaHQ9J2JvbGQnIGZvbnQtZmFtaWx5PSdzZXJpZiclM0XYpSUzQy90ZXh0JTNFJTNDL3N2ZyUzRSIsInNpemVzIjoiMTkyeDE5MiIsInR5cGUiOiJpbWFnZS9zdmcreG1sIn1dfQ==" />
+    <!-- PWA Manifest -->
+    <link rel="manifest" href="data:application/json;base64,eyJuYW1lIjoiSXFyYSAtIElzbGFtaWMgTGVhcm5pbmcgUGxhdGZvcm0iLCJzaG9ydF9uYW1lIjoiSXFyYSIsInN0YXJ0X3VybCI6Ii8iLCJkaXNwbGF5Ijoic3RhbmRhbG9uZSIsImJhY2tncm91bmRfY29sb3IiOiIjZmZmZmZmIiwidGhlbWVfY29sb3IiOiIjMTZhMzRhIiwiaWNvbnMiOlt7InNyYyI6ImRhdGE6aW1hZ2Uvc3ZnK3htbCwlM0NzdmcgeG1sbnM9J2h0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnJyB3aWR0aD0nMTkyJyBoZWlnaHQ9JzE5Micgdmlld0JveD0nMCAwIDE5MiAxOTInJTNFJTNDZGVmcyUzRSUzQ2xpbmVhckdyYWRpZW50IGlkPSdncmFkJyB4MT0nMCUyNScgeTE9JzAlMjUnIHgyPScxMDAlMjUnIHkyPScxMDAlMjUnJTNFJTNDc3RvcCBvZmZzZXQ9JzAlMjUnIHN0eWxlPSdzdG9wLWNvbG9yOiUyMzE2YTM0YTtzdG9wLW9wYWNpdHk6MScgLyUzRSUzQ3N0b3Agb2Zmc2V0PScxMDAlMjUnIHN0eWxlPSdzdG9wLWNvbG9yOiUyMzA1OTY2OTtzdG9wLW9wYWNpdHk6MScgLyUzRSUzQy9saW5lYXJHcmFkaWVudCUzRSUzQy9kZWZzJTNFJTNDcmVjdCB3aWR0aD0nMTkyJyBoZWlnaHQ9JzE5Micgcng9JzMyJyBmaWxsPSd1cmwoJTIzZ3JhZCknLyUzRSUzQ3RleHQgeD0nOTYnIHk9JzEzMCcgdGV4dC1hbmNob3I9J21pZGRsZScgZmlsbD0nd2hpdGUnIGZvbnQtc2l6ZT0nNjAnIGZvbnQtd2VpZ2h0PSdib2xkJyBmb250LWZhbWlseT0nc2VyaWYnJTNF2KXZgtix2KMlM0MvdGV4dCUzRSUzQy9zdmclM0UiLCJzaXplcyI6IjE5MngxOTIiLCJ0eXBlIjoiaW1hZ2Uvc3ZnK3htbCJ9XX0=" />
     
-    <title>Islamic Learning Hub - Authentic Islamic Education Platform</title>
+    <title>Iqra - Modern Islamic Learning Platform</title>
     
     <!-- Structured Data -->
     <script type="application/ld+json">
     {
       "@context": "https://schema.org",
       "@type": "EducationalOrganization",
-      "name": "Islamic Learning Hub",
-      "description": "Comprehensive Islamic education platform with role-based authentication, live classes, AI assistant, and multi-language support",
-      "url": "https://islamic-learning-hub.replit.app/",
-      "logo": "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='32' height='32' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='6' fill='%2316a34a'/%3E%3Ctext x='16' y='22' text-anchor='middle' fill='white' font-size='20' font-weight='bold' font-family='serif'%3Eإ%3C/text%3E%3C/svg%3E",
+      "name": "Iqra - Islamic Learning Platform",
+      "description": "Modern Islamic education platform with live classes, AI assistant, and multi-language support",
+      "url": "https://iqra-learning.vercel.app/",
+      "logo": "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='32' height='32' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='8' fill='%2316a34a'/%3E%3Ctext x='16' y='22' text-anchor='middle' fill='white' font-size='16' font-weight='bold' font-family='serif'%3Eإقرأ%3C/text%3E%3C/svg%3E",
       "sameAs": [],
       "educationalCredentialAwarded": "Islamic Studies Certificate",
       "hasCredential": {
@@ -58,7 +58,5 @@
   <body>
     <div id="root"></div>
     <script type="module" src="/src/main.tsx"></script>
-    <!-- This is a replit script which adds a banner on the top of the page when opened in development mode outside the replit environment -->
-    <script type="text/javascript" src="https://replit.com/public/js/replit-dev-banner.js"></script>
   </body>
 </html>

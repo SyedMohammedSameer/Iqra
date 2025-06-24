@@ -1,12 +1,14 @@
 import type { Express } from "express";
 import { createServer, type Server } from "http";
 import { storage } from "./storage";
-import { setupAuth, isAuthenticated } from "./replitAuth";
+import { authRoutes, authenticate } from "./auth";
 import { askIslamicQuestion, generateDailyContent } from "./openai";
 import { insertClassSchema, insertEnrollmentSchema, insertChatMessageSchema } from "@shared/schema";
 import multer from "multer";
 import path from "path";
 import fs from "fs";
+import cookieParser from "cookie-parser";
+import cors from "cors";
 
 // Configure multer for file uploads
 const uploadDir = path.join(process.cwd(), "uploads");
@@ -46,52 +48,64 @@ const upload = multer({
 });
 
 export async function registerRoutes(app: Express): Promise<Server> {
-  // Auth middleware
-  await setupAuth(app);
+  // Middleware
+  app.use(cors({
+    origin: process.env.FRONTEND_URL || ['http://localhost:3000', 'http://localhost:5173'],
+    credentials: true,
+  }));
+  app.use(cookieParser());
 
-  // Auth routes
-  app.get('/api/auth/user', isAuthenticated, async (req: any, res) => {
-    try {
-      const userId = req.user.claims.sub;
-      const user = await storage.getUser(userId);
-      res.json(user);
-    } catch (error) {
-      console.error("Error fetching user:", error);
-      res.status(500).json({ message: "Failed to fetch user" });
-    }
+  // Health check
+  app.get('/api/health', (req, res) => {
+    res.json({ status: 'ok', timestamp: new Date().toISOString() });
   });
 
-  // User role setup
-  app.post('/api/auth/setup-role', isAuthenticated, async (req: any, res) => {
-    try {
-      const userId = req.user.claims.sub;
-      const { role } = req.body;
-      
-      if (!role || !['student', 'teacher'].includes(role)) {
-        return res.status(400).json({ message: "Invalid role" });
-      }
+  // Auth routes
+  app.post('/api/auth/register', authRoutes.register);
+  app.post('/api/auth/login', authRoutes.login);
+  app.get('/api/auth/me', authenticate, authRoutes.me);
+  app.post('/api/auth/logout', authRoutes.logout);
+  app.post('/api/auth/refresh', authenticate, authRoutes.refresh);
 
-      const user = await storage.getUser(userId);
+  // Google OAuth routes (if implemented)
+  app.post('/api/auth/google', authRoutes.googleCallback);
+
+  // User routes
+  app.get('/api/users/profile', authenticate, async (req: any, res) => {
+    try {
+      const user = await storage.getUser(req.user.id);
       if (!user) {
         return res.status(404).json({ message: "User not found" });
       }
+      res.json(user);
+    } catch (error) {
+      console.error("Error fetching user profile:", error);
+      res.status(500).json({ message: "Failed to fetch user profile" });
+    }
+  });
 
-      const updatedUser = await storage.upsertUser({
-        ...user,
-        role,
+  app.put('/api/users/profile', authenticate, async (req: any, res) => {
+    try {
+      const { firstName, lastName, bio, phoneNumber, country, language } = req.body;
+      const updatedUser = await storage.updateUser(req.user.id, {
+        firstName,
+        lastName,
+        bio,
+        phoneNumber,
+        country,
+        language,
       });
-
       res.json(updatedUser);
     } catch (error) {
-      console.error("Error setting up user role:", error);
-      res.status(500).json({ message: "Failed to setup user role" });
+      console.error("Error updating user profile:", error);
+      res.status(500).json({ message: "Failed to update user profile" });
     }
   });
 
   // Classes routes
-  app.get('/api/classes', isAuthenticated, async (req: any, res) => {
+  app.get('/api/classes', authenticate, async (req: any, res) => {
     try {
-      const userId = req.user.claims.sub;
+      const userId = req.user.id;
       const user = await storage.getUser(userId);
       
       if (!user) {
@@ -112,7 +126,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.get('/api/classes/available', isAuthenticated, async (req: any, res) => {
+  app.get('/api/classes/available', authenticate, async (req: any, res) => {
     try {
       const classes = await storage.getClasses();
       res.json(classes);
@@ -122,9 +136,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.post('/api/classes', isAuthenticated, async (req: any, res) => {
+  app.post('/api/classes', authenticate, async (req: any, res) => {
     try {
-      const userId = req.user.claims.sub;
+      const userId = req.user.id;
       const user = await storage.getUser(userId);
       
       if (!user || user.role !== 'teacher') {
@@ -144,9 +158,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.put('/api/classes/:id', isAuthenticated, async (req: any, res) => {
+  app.put('/api/classes/:id', authenticate, async (req: any, res) => {
     try {
-      const userId = req.user.claims.sub;
+      const userId = req.user.id;
       const classId = parseInt(req.params.id);
       
       const existingClass = await storage.getClassById(classId);
@@ -167,9 +181,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Enrollment routes
-  app.post('/api/classes/:id/enroll', isAuthenticated, async (req: any, res) => {
+  app.post('/api/classes/:id/enroll', authenticate, async (req: any, res) => {
     try {
-      const userId = req.user.claims.sub;
+      const userId = req.user.id;
       const classId = parseInt(req.params.id);
       const user = await storage.getUser(userId);
       
@@ -190,9 +204,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.delete('/api/classes/:id/enroll', isAuthenticated, async (req: any, res) => {
+  app.delete('/api/classes/:id/enroll', authenticate, async (req: any, res) => {
     try {
-      const userId = req.user.claims.sub;
+      const userId = req.user.id;
       const classId = parseInt(req.params.id);
       
       await storage.unenrollStudent(classId, userId);
@@ -204,11 +218,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // File upload routes
-  app.post('/api/files/upload', isAuthenticated, upload.single('file'), async (req: any, res) => {
+  app.post('/api/files/upload', authenticate, upload.single('file'), async (req: any, res) => {
     try {
-      const userId = req.user.claims.sub;
+      const userId = req.user.id;
       const file = req.file;
-      const { classId } = req.body;
+      const { classId, description, category } = req.body;
       
       if (!file) {
         return res.status(400).json({ message: "No file uploaded" });
@@ -222,6 +236,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
         mimeType: file.mimetype,
         uploadedBy: userId,
         classId: classId ? parseInt(classId) : null,
+        description,
+        category,
       };
 
       const uploadedFile = await storage.uploadFile(fileData);
@@ -232,7 +248,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.get('/api/files/:id/download', isAuthenticated, async (req: any, res) => {
+  app.get('/api/files/:id/download', authenticate, async (req: any, res) => {
     try {
       const fileId = parseInt(req.params.id);
       const file = await storage.getFileById(fileId);
@@ -256,9 +272,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.get('/api/files', isAuthenticated, async (req: any, res) => {
+  app.get('/api/files', authenticate, async (req: any, res) => {
     try {
-      const userId = req.user.claims.sub;
+      const userId = req.user.id;
       const { classId } = req.query;
       
       let files;
@@ -276,9 +292,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // AI Chat routes
-  app.post('/api/chat', isAuthenticated, async (req: any, res) => {
+  app.post('/api/chat', authenticate, async (req: any, res) => {
     try {
-      const userId = req.user.claims.sub;
+      const userId = req.user.id;
       const { message } = req.body;
       
       if (!message) {
@@ -305,9 +321,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.get('/api/chat/history', isAuthenticated, async (req: any, res) => {
+  app.get('/api/chat/history', authenticate, async (req: any, res) => {
     try {
-      const userId = req.user.claims.sub;
+      const userId = req.user.id;
       const limit = req.query.limit ? parseInt(req.query.limit as string) : 50;
       
       const history = await storage.getChatHistory(userId, limit);
@@ -354,6 +370,89 @@ export async function registerRoutes(app: Express): Promise<Server> {
       console.error("Error fetching daily content:", error);
       res.status(500).json({ message: "Failed to fetch daily content" });
     }
+  });
+
+  // Dashboard stats routes
+  app.get('/api/dashboard/stats', authenticate, async (req: any, res) => {
+    try {
+      const userId = req.user.id;
+      const user = await storage.getUser(userId);
+      
+      if (!user) {
+        return res.status(404).json({ message: "User not found" });
+      }
+
+      let stats = {};
+      
+      if (user.role === 'teacher') {
+        const classes = await storage.getClassesByTeacher(userId);
+        const totalStudents = 0; // Calculate from enrollments
+        const files = await storage.getFilesByUploader(userId);
+        
+        stats = {
+          totalClasses: classes.length,
+          totalStudents,
+          totalFiles: files.length,
+          totalRevenue: 0, // Calculate from payments
+        };
+      } else {
+        const classes = await storage.getClassesByStudent(userId);
+        const enrollments = await storage.getEnrollmentsByStudent(userId);
+        
+        stats = {
+          enrolledClasses: classes.length,
+          completedClasses: 0, // Calculate from progress
+          totalProgress: 0, // Average progress across all classes
+          certificates: 0, // Count of completed certificates
+        };
+      }
+      
+      res.json(stats);
+    } catch (error) {
+      console.error("Error fetching dashboard stats:", error);
+      res.status(500).json({ message: "Failed to fetch dashboard stats" });
+    }
+  });
+
+  // Search routes
+  app.get('/api/search', authenticate, async (req: any, res) => {
+    try {
+      const { q, type = 'all' } = req.query;
+      
+      if (!q) {
+        return res.status(400).json({ message: "Search query is required" });
+      }
+
+      // Implement search logic here
+      // This is a basic example - you'd want to implement full-text search
+      const results = {
+        classes: [],
+        files: [],
+        users: [],
+      };
+      
+      res.json(results);
+    } catch (error) {
+      console.error("Error performing search:", error);
+      res.status(500).json({ message: "Failed to perform search" });
+    }
+  });
+
+  // Error handling middleware
+  app.use((error: any, req: any, res: any, next: any) => {
+    console.error('Route error:', error);
+    
+    if (error.code === 'LIMIT_FILE_SIZE') {
+      return res.status(400).json({ message: 'File too large. Maximum size is 100MB.' });
+    }
+    
+    if (error.message.includes('Invalid file type')) {
+      return res.status(400).json({ message: error.message });
+    }
+    
+    res.status(500).json({ 
+      message: process.env.NODE_ENV === 'development' ? error.message : 'Internal server error' 
+    });
   });
 
   const httpServer = createServer(app);
