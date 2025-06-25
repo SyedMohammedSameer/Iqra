@@ -3,6 +3,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { LanguageSelector } from "@/components/LanguageSelector";
+// We'll define AuthModal inline for now
 import { useTranslation } from "react-i18next";
 import { 
   Book, 
@@ -24,14 +25,29 @@ import {
   Trophy,
   Clock,
   Award,
-  MessageCircle
+  MessageCircle,
+  Eye,
+  EyeOff,
+  Mail,
+  Lock,
+  User
 } from "lucide-react";
+import { useMutation } from "@tanstack/react-query";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { z } from "zod";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { useToast } from "@/hooks/use-toast";
+import { apiRequest } from "@/lib/queryClient";
 
 export default function Landing() {
   const { t } = useTranslation();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);
-  const [currentTestimonial, setCurrentTestimonial] = useState(0);
+  const [authModalOpen, setAuthModalOpen] = useState(false);
+  const [authMode, setAuthMode] = useState<"login" | "register">("login");
 
   useEffect(() => {
     const handleScroll = () => {
@@ -41,13 +57,10 @@ export default function Landing() {
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
-  // Auto-rotate testimonials
-  useEffect(() => {
-    const timer = setInterval(() => {
-      setCurrentTestimonial((prev) => (prev + 1) % testimonials.length);
-    }, 5000);
-    return () => clearInterval(timer);
-  }, []);
+  const openAuthModal = (mode: "login" | "register") => {
+    setAuthMode(mode);
+    setAuthModalOpen(true);
+  };
 
   const features = [
     {
@@ -101,30 +114,6 @@ export default function Landing() {
     { number: "4.9★", label: "Rating", icon: <Star className="w-6 h-6" />, color: "text-yellow-600" },
   ];
 
-  const testimonials = [
-    {
-      name: "Ahmed Al-Rashid",
-      role: "Student from Saudi Arabia",
-      content: "Iqra has transformed my Islamic learning journey. The AI assistant helps me understand complex concepts easily, and the live classes feel like being in a real classroom.",
-      avatar: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=64&h=64&fit=crop&crop=face",
-      rating: 5
-    },
-    {
-      name: "Fatima Khan",
-      role: "Islamic Teacher from Pakistan",
-      content: "Teaching on Iqra is seamless. The platform's tools make it easy to engage with students worldwide. My classes are always full, and students are more engaged than ever.",
-      avatar: "https://images.unsplash.com/photo-1494790108755-2616b2e7f3a8?w=64&h=64&fit=crop&crop=face",
-      rating: 5
-    },
-    {
-      name: "Omar Hassan",
-      role: "Parent from Bangladesh",
-      content: "My children love learning Quran through Iqra. The interactive lessons keep them engaged, and I can track their progress. It's like having a personal Islamic tutor at home.",
-      avatar: "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=64&h=64&fit=crop&crop=face",
-      rating: 5
-    }
-  ];
-
   const achievements = [
     { icon: <Trophy className="w-6 h-6" />, text: "Best Islamic Learning Platform 2024" },
     { icon: <Award className="w-6 h-6" />, text: "1M+ Students Worldwide" },
@@ -166,14 +155,18 @@ export default function Landing() {
               <a href="#about" className="text-gray-700 hover:text-emerald-600 font-medium transition-all duration-300 hover:scale-105">
                 About
               </a>
-              <a href="#testimonials" className="text-gray-700 hover:text-emerald-600 font-medium transition-all duration-300 hover:scale-105">
-                Reviews
-              </a>
               <LanguageSelector />
-              <Button variant="ghost" className="text-gray-700 hover:text-emerald-600 hover:bg-emerald-50 transition-all duration-300">
+              <Button 
+                variant="ghost" 
+                onClick={() => openAuthModal("login")}
+                className="text-gray-700 hover:text-emerald-600 hover:bg-emerald-50 transition-all duration-300"
+              >
                 Sign In
               </Button>
-              <Button className="bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-600 hover:to-teal-700 text-white shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105">
+              <Button 
+                onClick={() => openAuthModal("register")}
+                className="bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-600 hover:to-teal-700 text-white shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105"
+              >
                 <Sparkles className="w-4 h-4 mr-2" />
                 Get Started
               </Button>
@@ -203,14 +196,18 @@ export default function Landing() {
                 <a href="#about" className="text-gray-700 hover:text-emerald-600 font-medium transition-all duration-300 py-2 hover:pl-2">
                   About
                 </a>
-                <a href="#testimonials" className="text-gray-700 hover:text-emerald-600 font-medium transition-all duration-300 py-2 hover:pl-2">
-                  Reviews
-                </a>
                 <div className="flex space-x-3 pt-4 border-t">
-                  <Button variant="outline" className="flex-1 hover:bg-emerald-50 hover:border-emerald-300 transition-all duration-300">
+                  <Button 
+                    variant="outline" 
+                    onClick={() => openAuthModal("login")}
+                    className="flex-1 hover:bg-emerald-50 hover:border-emerald-300 transition-all duration-300"
+                  >
                     Sign In
                   </Button>
-                  <Button className="flex-1 bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-600 hover:to-teal-700 transition-all duration-300">
+                  <Button 
+                    onClick={() => openAuthModal("register")}
+                    className="flex-1 bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-600 hover:to-teal-700 transition-all duration-300"
+                  >
                     Get Started
                   </Button>
                 </div>
@@ -256,12 +253,21 @@ export default function Landing() {
               
               {/* Enhanced CTA Buttons */}
               <div className="flex flex-col sm:flex-row gap-4 justify-center lg:justify-start animate-in slide-in-from-bottom-4 duration-1000" style={{ animationDelay: '0.6s' }}>
-                <Button size="lg" className="bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-600 hover:to-teal-700 text-white px-8 py-6 text-lg shadow-xl hover:shadow-2xl transition-all duration-300 group hover:scale-105">
+                <Button 
+                  size="lg" 
+                  onClick={() => openAuthModal("register")}
+                  className="bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-600 hover:to-teal-700 text-white px-8 py-6 text-lg shadow-xl hover:shadow-2xl transition-all duration-300 group hover:scale-105"
+                >
                   <Play className="w-5 h-5 mr-2 group-hover:scale-110 transition-transform" />
                   {t('hero.startLearning')}
                   <ArrowRight className="w-5 h-5 ml-2 group-hover:translate-x-1 transition-transform" />
                 </Button>
-                <Button variant="outline" size="lg" className="border-2 border-emerald-200 text-emerald-700 hover:bg-emerald-50 hover:border-emerald-300 px-8 py-6 text-lg hover:scale-105 transition-all duration-300">
+                <Button 
+                  variant="outline" 
+                  size="lg" 
+                  onClick={() => openAuthModal("register")}
+                  className="border-2 border-emerald-200 text-emerald-700 hover:bg-emerald-50 hover:border-emerald-300 px-8 py-6 text-lg hover:scale-105 transition-all duration-300"
+                >
                   <MessageCircle className="w-5 h-5 mr-2" />
                   {t('hero.becomeTeacher')}
                 </Button>
@@ -389,71 +395,6 @@ export default function Landing() {
         </div>
       </section>
 
-      {/* Enhanced Testimonials Section */}
-      <section id="testimonials" className="py-20 bg-gradient-to-br from-emerald-50 via-white to-teal-50 relative overflow-hidden">
-        <div className="absolute inset-0 opacity-30">
-          <div className="absolute top-0 left-0 w-full h-full bg-gradient-to-r from-emerald-500/5 to-teal-500/5"></div>
-        </div>
-        <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center space-y-4 mb-16 animate-in slide-in-from-bottom-6 duration-1000">
-            <Badge className="bg-emerald-100 text-emerald-700 px-6 py-3 border-0 shadow-lg">
-              <Heart className="w-4 h-4 mr-2" />
-              Student Stories
-            </Badge>
-            <h2 className="text-3xl md:text-4xl lg:text-5xl font-bold text-gray-900">
-              Loved by Learners Worldwide
-            </h2>
-            <p className="text-xl text-gray-600 max-w-3xl mx-auto">
-              See what our community says about their learning journey with Iqra
-            </p>
-          </div>
-
-          {/* Testimonial Carousel */}
-          <div className="relative max-w-4xl mx-auto">
-            <Card className="border-0 shadow-2xl hover:shadow-3xl transition-all duration-500 bg-white/80 backdrop-blur-sm">
-              <CardContent className="p-8 md:p-12">
-                <div className="text-center space-y-6">
-                  <div className="flex justify-center space-x-1 mb-6">
-                    {[...Array(testimonials[currentTestimonial].rating)].map((_, i) => (
-                      <Star key={i} className="w-6 h-6 fill-yellow-400 text-yellow-400" />
-                    ))}
-                  </div>
-                  <blockquote className="text-xl md:text-2xl text-gray-700 leading-relaxed font-medium">
-                    "{testimonials[currentTestimonial].content}"
-                  </blockquote>
-                  <div className="flex items-center justify-center space-x-4">
-                    <img 
-                      src={testimonials[currentTestimonial].avatar} 
-                      alt={testimonials[currentTestimonial].name}
-                      className="w-16 h-16 rounded-full object-cover ring-4 ring-emerald-100"
-                    />
-                    <div className="text-left">
-                      <p className="font-semibold text-gray-900 text-lg">{testimonials[currentTestimonial].name}</p>
-                      <p className="text-gray-600">{testimonials[currentTestimonial].role}</p>
-                    </div>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-            
-            {/* Testimonial Indicators */}
-            <div className="flex justify-center space-x-2 mt-8">
-              {testimonials.map((_, index) => (
-                <button
-                  key={index}
-                  onClick={() => setCurrentTestimonial(index)}
-                  className={`w-3 h-3 rounded-full transition-all duration-300 ${
-                    index === currentTestimonial 
-                      ? 'bg-emerald-600 scale-125' 
-                      : 'bg-gray-300 hover:bg-gray-400'
-                  }`}
-                />
-              ))}
-            </div>
-          </div>
-        </div>
-      </section>
-
       {/* Enhanced CTA Section */}
       <section className="py-20 bg-gradient-to-r from-emerald-600 via-teal-600 to-emerald-700 relative overflow-hidden">
         <div className="absolute inset-0">
@@ -470,11 +411,20 @@ export default function Landing() {
               Join thousands of students and teachers worldwide. Begin with our free courses and discover the beauty of Islamic knowledge.
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center max-w-md mx-auto">
-              <Button size="lg" className="bg-white text-emerald-600 hover:bg-gray-50 hover:scale-105 px-8 py-6 text-lg shadow-xl transition-all duration-300 group">
+              <Button 
+                size="lg" 
+                onClick={() => openAuthModal("register")}
+                className="bg-white text-emerald-600 hover:bg-gray-50 hover:scale-105 px-8 py-6 text-lg shadow-xl transition-all duration-300 group"
+              >
                 <Heart className="w-5 h-5 mr-2 group-hover:scale-110 transition-transform" />
                 Start Learning Free
               </Button>
-              <Button variant="outline" size="lg" className="border-2 border-white text-white hover:bg-white hover:text-emerald-600 hover:scale-105 px-8 py-6 text-lg transition-all duration-300">
+              <Button 
+                variant="outline" 
+                size="lg" 
+                onClick={() => openAuthModal("register")}
+                className="border-2 border-white text-white hover:bg-white hover:text-emerald-600 hover:scale-105 px-8 py-6 text-lg transition-all duration-300"
+              >
                 Become an Instructor
               </Button>
             </div>
@@ -546,6 +496,13 @@ export default function Landing() {
           </div>
         </div>
       </footer>
+
+      {/* Auth Modal */}
+      <AuthModal 
+        isOpen={authModalOpen}
+        onClose={() => setAuthModalOpen(false)}
+        initialMode={authMode}
+      />
     </div>
   );
 }

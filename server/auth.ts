@@ -1,3 +1,4 @@
+// server/auth.ts - Fixed authentication
 import jwt from 'jsonwebtoken';
 import bcrypt from 'bcrypt';
 import { Request, Response, NextFunction } from 'express';
@@ -39,22 +40,30 @@ export async function comparePassword(password: string, hash: string): Promise<b
   return bcrypt.compare(password, hash);
 }
 
-// Middleware
-export const authenticateToken = (req: AuthRequest, res: Response, next: NextFunction) => {
+// Combined authentication middleware (checks both cookie and bearer token)
+export const authenticate = (req: AuthRequest, res: Response, next: NextFunction) => {
+  // Try cookie first (for browser)
+  const cookieToken = req.cookies?.auth_token;
+  if (cookieToken) {
+    const user = verifyToken(cookieToken);
+    if (user) {
+      req.user = user;
+      return next();
+    }
+  }
+
+  // Try Authorization header (for API)
   const authHeader = req.headers['authorization'];
-  const token = authHeader && authHeader.split(' ')[1]; // Bearer TOKEN
-
-  if (!token) {
-    return res.status(401).json({ message: 'Access token required' });
+  const bearerToken = authHeader && authHeader.split(' ')[1];
+  if (bearerToken) {
+    const user = verifyToken(bearerToken);
+    if (user) {
+      req.user = user;
+      return next();
+    }
   }
 
-  const user = verifyToken(token);
-  if (!user) {
-    return res.status(403).json({ message: 'Invalid or expired token' });
-  }
-
-  req.user = user;
-  next();
+  return res.status(401).json({ message: 'Authentication required' });
 };
 
 // Auth routes
@@ -71,10 +80,16 @@ export const authRoutes = {
         });
       }
 
+      if (!firstName || !lastName) {
+        return res.status(400).json({ 
+          message: 'First name and last name are required' 
+        });
+      }
+
       // Check if user already exists
       const existingUser = await storage.getUserByEmail(email);
       if (existingUser) {
-        return res.status(409).json({ message: 'User already exists' });
+        return res.status(409).json({ message: 'User already exists with this email' });
       }
 
       // Hash password
@@ -82,11 +97,12 @@ export const authRoutes = {
 
       // Create user
       const user = await storage.createUser({
-        email,
+        email: email.toLowerCase().trim(),
         password: hashedPassword,
-        firstName,
-        lastName,
+        firstName: firstName.trim(),
+        lastName: lastName.trim(),
         role: role as 'student' | 'teacher',
+        isVerified: true, // For now, auto-verify users
       });
 
       // Generate token
@@ -132,16 +148,24 @@ export const authRoutes = {
       }
 
       // Find user
-      const user = await storage.getUserByEmail(email);
+      const user = await storage.getUserByEmail(email.toLowerCase().trim());
       if (!user || !user.password) {
-        return res.status(401).json({ message: 'Invalid credentials' });
+        return res.status(401).json({ message: 'Invalid email or password' });
+      }
+
+      // Check if user is active
+      if (!user.isActive) {
+        return res.status(401).json({ message: 'Account is deactivated' });
       }
 
       // Check password
       const isPasswordValid = await comparePassword(password, user.password);
       if (!isPasswordValid) {
-        return res.status(401).json({ message: 'Invalid credentials' });
+        return res.status(401).json({ message: 'Invalid email or password' });
       }
+
+      // Update last login
+      await storage.updateUser(user.id, { lastLoginAt: new Date() });
 
       // Generate token
       const token = generateToken({
@@ -187,12 +211,17 @@ export const authRoutes = {
         return res.status(404).json({ message: 'User not found' });
       }
 
+      if (!user.isActive) {
+        return res.status(401).json({ message: 'Account is deactivated' });
+      }
+
       res.json({
         id: user.id,
         email: user.email,
         firstName: user.firstName,
         lastName: user.lastName,
         role: user.role,
+        profileImageUrl: user.profileImageUrl,
         createdAt: user.createdAt,
       });
     } catch (error) {
@@ -203,7 +232,11 @@ export const authRoutes = {
 
   // Logout user
   logout: (req: Request, res: Response) => {
-    res.clearCookie('auth_token');
+    res.clearCookie('auth_token', {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === 'production',
+      sameSite: 'strict',
+    });
     res.json({ message: 'Logout successful' });
   },
 
@@ -212,6 +245,12 @@ export const authRoutes = {
     try {
       if (!req.user) {
         return res.status(401).json({ message: 'Not authenticated' });
+      }
+
+      // Verify user still exists and is active
+      const user = await storage.getUser(req.user.id);
+      if (!user || !user.isActive) {
+        return res.status(401).json({ message: 'User not found or deactivated' });
       }
 
       // Generate new token
@@ -236,90 +275,14 @@ export const authRoutes = {
     }
   },
 
-  // Social login (Google OAuth example)
+  // Social login placeholder
   googleCallback: async (req: Request, res: Response) => {
     try {
       // This would be implemented with passport-google-oauth20
-      // For now, it's a placeholder showing the structure
-      const { googleId, email, firstName, lastName, picture } = req.body;
-
-      let user = await storage.getUserByEmail(email);
-      
-      if (!user) {
-        // Create new user from Google data
-        user = await storage.createUser({
-          email,
-          firstName,
-          lastName,
-          profileImageUrl: picture,
-          googleId,
-          role: 'student', // Default role
-        });
-      }
-
-      // Generate token
-      const token = generateToken({
-        id: user.id,
-        email: user.email,
-        role: user.role as 'student' | 'teacher',
-      });
-
-      // Set cookie
-      res.cookie('auth_token', token, {
-        httpOnly: true,
-        secure: process.env.NODE_ENV === 'production',
-        sameSite: 'strict',
-        maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
-      });
-
-      res.redirect('/dashboard');
+      res.status(501).json({ message: 'Google OAuth not implemented yet' });
     } catch (error) {
       console.error('Google auth error:', error);
-      res.redirect('/login?error=auth_failed');
+      res.status(500).json({ message: 'Internal server error' });
     }
   },
-};
-
-// Cookie-based authentication middleware (for browser requests)
-export const authenticateCookie = (req: AuthRequest, res: Response, next: NextFunction) => {
-  const token = req.cookies?.auth_token;
-
-  if (!token) {
-    return res.status(401).json({ message: 'Authentication required' });
-  }
-
-  const user = verifyToken(token);
-  if (!user) {
-    res.clearCookie('auth_token');
-    return res.status(403).json({ message: 'Invalid or expired token' });
-  }
-
-  req.user = user;
-  next();
-};
-
-// Combined authentication middleware (checks both cookie and bearer token)
-export const authenticate = (req: AuthRequest, res: Response, next: NextFunction) => {
-  // Try cookie first (for browser)
-  const cookieToken = req.cookies?.auth_token;
-  if (cookieToken) {
-    const user = verifyToken(cookieToken);
-    if (user) {
-      req.user = user;
-      return next();
-    }
-  }
-
-  // Try Authorization header (for API)
-  const authHeader = req.headers['authorization'];
-  const bearerToken = authHeader && authHeader.split(' ')[1];
-  if (bearerToken) {
-    const user = verifyToken(bearerToken);
-    if (user) {
-      req.user = user;
-      return next();
-    }
-  }
-
-  return res.status(401).json({ message: 'Authentication required' });
 };
